@@ -109,7 +109,7 @@ async def get_comments(
     recipe_id: int,
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    sort: str = Query("newest", regex="^(newest|oldest|top)$"),
+    sort: str = Query("newest", pattern="^(newest|oldest|top)$"),
     user: UserRow | None = Depends(require_user),
     session: AsyncSession = Depends(get_session),
 ):

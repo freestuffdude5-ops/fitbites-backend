@@ -64,3 +64,27 @@ jobs:
           pip install -e ".[dev]" 2>/dev/null || \
             pip install fastapi uvicorn pydantic sqlalchemy aiosqlite anthropic httpx
           pip-audit --strict 2>&1 || true  # Don't fail build, just report
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, docker]
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+          railway up --detach
+          echo "✅ Deployed to Railway"
+
+      - name: Verify deployment
+        run: |
+          sleep 20
+          curl -sf ${{ secrets.RAILWAY_URL }}/health | grep -q ok
+          echo "✅ Deployment health check passed"

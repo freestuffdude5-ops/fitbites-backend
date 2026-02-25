@@ -43,9 +43,7 @@ async def test_track_view_idempotent(async_client: AsyncClient, auth_headers, te
 @pytest.mark.asyncio
 async def test_get_recently_viewed_empty(async_client: AsyncClient, auth_headers):
     """Getting recently viewed with no history returns empty list."""
-    # Get user_id from auth
-    me_resp = await async_client.get("/api/v1/me", headers=auth_headers)
-    user_id = me_resp.json()["id"]
+    user_id = auth_headers["user_id"]
     
     response = await async_client.get(
         f"/api/v1/users/{user_id}/recently-viewed",
@@ -60,12 +58,10 @@ async def test_get_recently_viewed_empty(async_client: AsyncClient, auth_headers
 @pytest.mark.asyncio
 async def test_get_recently_viewed_list(async_client: AsyncClient, auth_headers, test_recipe):
     """Getting recently viewed returns list of recipes with metadata."""
+    user_id = auth_headers["user_id"]
+    
     # View recipe
     await async_client.post(f"/api/v1/recipes/{test_recipe['id']}/view", headers=auth_headers)
-    
-    # Get user_id
-    me_resp = await async_client.get("/api/v1/me", headers=auth_headers)
-    user_id = me_resp.json()["id"]
     
     # Get history
     response = await async_client.get(
@@ -84,13 +80,13 @@ async def test_get_recently_viewed_list(async_client: AsyncClient, auth_headers,
 @pytest.mark.asyncio
 async def test_get_recently_viewed_ordered(async_client: AsyncClient, auth_headers, test_recipes):
     """Recently viewed list is ordered by view time (newest first)."""
+    user_id = auth_headers["user_id"]
+    
     # View 3 recipes in order
     for recipe in test_recipes[:3]:
         await async_client.post(f"/api/v1/recipes/{recipe['id']}/view", headers=auth_headers)
     
     # Get history
-    me_resp = await async_client.get("/api/v1/me", headers=auth_headers)
-    user_id = me_resp.json()["id"]
     response = await async_client.get(
         f"/api/v1/users/{user_id}/recently-viewed",
         headers=auth_headers,
@@ -105,13 +101,13 @@ async def test_get_recently_viewed_ordered(async_client: AsyncClient, auth_heade
 @pytest.mark.asyncio
 async def test_get_recently_viewed_limit(async_client: AsyncClient, auth_headers, test_recipes):
     """Recently viewed respects limit parameter."""
+    user_id = auth_headers["user_id"]
+    
     # View 5 recipes
     for recipe in test_recipes[:5]:
         await async_client.post(f"/api/v1/recipes/{recipe['id']}/view", headers=auth_headers)
     
     # Get history with limit
-    me_resp = await async_client.get("/api/v1/me", headers=auth_headers)
-    user_id = me_resp.json()["id"]
     response = await async_client.get(
         f"/api/v1/users/{user_id}/recently-viewed?limit=3",
         headers=auth_headers,
@@ -134,12 +130,10 @@ async def test_get_recently_viewed_wrong_user(async_client: AsyncClient, auth_he
 @pytest.mark.asyncio
 async def test_clear_history(async_client: AsyncClient, auth_headers, test_recipe):
     """User can clear their recently viewed history."""
+    user_id = auth_headers["user_id"]
+    
     # View recipe
     await async_client.post(f"/api/v1/recipes/{test_recipe['id']}/view", headers=auth_headers)
-    
-    # Get user_id
-    me_resp = await async_client.get("/api/v1/me", headers=auth_headers)
-    user_id = me_resp.json()["id"]
     
     # Clear history
     response = await async_client.delete(

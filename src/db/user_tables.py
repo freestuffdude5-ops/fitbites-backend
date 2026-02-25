@@ -33,6 +33,9 @@ class UserRow(Base):
     
     # Relationships
     comments = relationship("CommentRow", back_populates="author", foreign_keys="CommentRow.user_id")
+    
+    # Relationships
+    comments = relationship("CommentRow", back_populates="author", foreign_keys="CommentRow.user_id")
 
     # Relationships
     comments = relationship("CommentRow", back_populates="author", cascade="all, delete-orphan")
