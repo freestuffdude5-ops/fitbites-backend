@@ -90,13 +90,13 @@ async def seed_extra_recipes(
     spec.loader.exec_module(mod)
     
     import uuid, random
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     
     added = 0
     for r in mod.EXTRA_RECIPES:
         if r["title"] in existing_titles:
             continue
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         row = RecipeRow(
             id=str(uuid.uuid4()),
             title=r["title"],

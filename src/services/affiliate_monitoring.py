@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from sqlalchemy import select, func
@@ -47,7 +47,7 @@ async def get_affiliate_health(
     session: AsyncSession,
 ) -> AffiliateHealthMetrics:
     """Calculate current affiliate system health metrics."""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     last_24h = now - timedelta(hours=24)
     last_7d = now - timedelta(days=7)
     
@@ -240,7 +240,7 @@ async def detect_fraudulent_conversions(
         List of suspicious conversion events with explanations
     """
     suspicious = []
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     cutoff = now - timedelta(hours=lookback_hours)
     
     # Pattern 1: Multiple conversions from same user_fingerprint in short time

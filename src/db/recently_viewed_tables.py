@@ -16,7 +16,7 @@ class RecentlyViewedRow(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     recipe_id = Column(String(36), ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False, index=True)
-    viewed_at = Column(DateTime, nullable=False, default=lambda: datetime.utcnow(), index=True)
+    viewed_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
     
     __table_args__ = (
         Index("ix_recently_viewed_user_time", "user_id", "viewed_at"),

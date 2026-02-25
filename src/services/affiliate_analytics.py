@@ -19,7 +19,7 @@ import hashlib
 import hmac
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Optional
 
@@ -92,7 +92,7 @@ async def track_click(
         user_agent=user_agent,
         ip_address=ip_address,
         referer=referer,
-        clicked_at=datetime.utcnow(),
+        clicked_at=datetime.now(timezone.utc),
     )
     session.add(click)
     await session.flush()  # Get the ID without committing

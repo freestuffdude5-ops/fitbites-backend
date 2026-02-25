@@ -28,8 +28,8 @@ class UserRow(Base):
     # Preferences (JSON blob for flexibility)
     preferences = Column(JSON, default=dict)  # e.g. {"dietary": ["keto"], "max_calories": 500}
 
-    created_at = Column(DateTime, default=lambda: datetime.utcnow())
-    last_active_at = Column(DateTime, default=lambda: datetime.utcnow())
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    last_active_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     # Relationships
     comments = relationship("CommentRow", back_populates="author", foreign_keys="CommentRow.user_id")
@@ -46,7 +46,7 @@ class SavedRecipeRow(Base):
     recipe_id = Column(String(36), ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False, index=True)
     collection = Column(String(100), nullable=True, default=None)  # e.g. "Meal Prep", "Quick Snacks"
     notes = Column(Text, nullable=True)  # personal notes on the recipe
-    saved_at = Column(DateTime, default=lambda: datetime.utcnow())
+    saved_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         UniqueConstraint("user_id", "recipe_id", name="uq_user_recipe"),
@@ -62,5 +62,5 @@ class GroceryListRow(Base):
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String(200), nullable=False, default="My Grocery List")
     items = Column(JSON, default=list)  # [{ingredient, amount, recipe_id, checked}]
-    created_at = Column(DateTime, default=lambda: datetime.utcnow())
-    updated_at = Column(DateTime, default=lambda: datetime.utcnow())
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

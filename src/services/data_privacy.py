@@ -49,7 +49,7 @@ async def export_user_data(
     Response time: immediate (< 30 days GDPR requirement).
     """
     export = {
-        "export_date": datetime.utcnow().isoformat(),
+        "export_date": datetime.now(timezone.utc).isoformat(),
         "user_id": user.id,
         "format_version": "1.0",
         "data": {},
@@ -179,8 +179,8 @@ async def delete_account(
         # Mark as canceled — actual cancellation with Stripe/Apple/Google
         # should be handled client-side before calling delete
         sub.status = "canceled"
-        sub.canceled_at = datetime.utcnow()
-        sub.updated_at = datetime.utcnow()
+        sub.canceled_at = datetime.now(timezone.utc)
+        sub.updated_at = datetime.now(timezone.utc)
         logger.info(f"Canceled subscription for deleted user {user_id}")
 
     # 2. Anonymize payment events (keep for audit, remove PII)
@@ -283,7 +283,7 @@ async def update_consent(
     Consent must be freely given, specific, informed, and unambiguous.
     Users can withdraw consent at any time.
     """
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     updates = {}
     if req.analytics is not None:
         updates["analytics"] = req.analytics

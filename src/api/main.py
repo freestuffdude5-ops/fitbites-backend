@@ -640,6 +640,9 @@ app.include_router(affiliate_admin_router)
 from src.api.collections import router as collections_router
 app.include_router(collections_router)
 
+from src.api.password_reset import router as password_reset_router
+app.include_router(password_reset_router)
+
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 
 @app.post("/api/v1/affiliate-links/tracked")

@@ -61,7 +61,7 @@ class RecipeRow(Base):
     difficulty = Column(String(20), nullable=True)
     virality_score = Column(Float, nullable=True, index=True)
 
-    scraped_at = Column(DateTime, default=lambda: datetime.utcnow())
+    scraped_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     published_at = Column(DateTime, nullable=True)
 
     __table_args__ = (

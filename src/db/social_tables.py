@@ -25,7 +25,7 @@ class FollowRow(Base):
         String(36), ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False, index=True,
     )
-    created_at = Column(DateTime, default=lambda: datetime.utcnow())
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         UniqueConstraint("follower_id", "following_id", name="uq_follow_pair"),
@@ -50,7 +50,7 @@ class ActivityRow(Base):
     )
     target_user_id = Column(String(36), nullable=True)  # e.g. who they followed
     extra = Column(JSON, default=dict)  # extra context (rating, photo_url, etc.)
-    created_at = Column(DateTime, default=lambda: datetime.utcnow(), index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
     __table_args__ = (
         Index("ix_activity_user_time", "user_id", "created_at"),
@@ -73,4 +73,4 @@ class RecipeShareRow(Base):
     share_code = Column(String(12), nullable=False, unique=True, index=True)
     platform = Column(String(50), nullable=True)  # instagram, messages, twitter, etc.
     clicks = Column(String(36), default="0")  # track opens
-    created_at = Column(DateTime, default=lambda: datetime.utcnow())
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

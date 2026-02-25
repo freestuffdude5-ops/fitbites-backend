@@ -92,12 +92,12 @@ async def _flag_inactive_accounts(
             ).limit(1000)  # Process in batches
         )
         users = result.scalars().all()
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         for user in users:
             prefs = user.preferences or {}
             prefs["retention_flagged"] = now
             prefs["retention_delete_after"] = (
-                datetime.utcnow() + timedelta(days=SOFT_DELETE_GRACE_DAYS)
+                datetime.now(timezone.utc) + timedelta(days=SOFT_DELETE_GRACE_DAYS)
             ).isoformat()
             user.preferences = prefs
         count = len(users)
@@ -111,7 +111,7 @@ async def _hard_delete_expired(session: AsyncSession, dry_run: bool) -> int:
     These were flagged > 30 days ago and the user never came back.
     Follows same deletion cascade as the manual account deletion endpoint.
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     
     # Find users whose retention_delete_after has passed
     # Using raw SQL for JSON field querying (portable across SQLite + PG)
@@ -280,9 +280,9 @@ async def run_retention_sweep(
     """Execute full retention sweep. Core function used by both API and scheduler."""
     result = RetentionResult(
         dry_run=dry_run,
-        started_at=datetime.utcnow().isoformat(),
+        started_at=datetime.now(timezone.utc).isoformat(),
     )
-    start = datetime.utcnow()
+    start = datetime.now(timezone.utc)
     now = start
 
     # 1. Flag inactive accounts
@@ -332,7 +332,7 @@ async def run_retention_sweep(
     if not dry_run:
         await session.commit()
 
-    end = datetime.utcnow()
+    end = datetime.now(timezone.utc)
     result.completed_at = end.isoformat()
     result.duration_ms = int((end - start).total_seconds() * 1000)
 
@@ -383,7 +383,7 @@ async def retention_stats(
     session: AsyncSession = Depends(get_session),
 ):
     """View data retention statistics — how many records exist per category."""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     stats = {}
 
     # Total users
