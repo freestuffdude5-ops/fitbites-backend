@@ -79,12 +79,21 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
-          railway up --detach
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment production --service prolific-optimism
+          railway up --detach --service prolific-optimism
           echo "✅ Deployed to Railway"
 
       - name: Verify deployment
         run: |
-          sleep 20
-          curl -sf ${{ secrets.RAILWAY_URL }}/health | grep -q ok
-          echo "✅ Deployment health check passed"
+          echo "Waiting for deployment to stabilize..."
+          sleep 30
+          for i in 1 2 3; do
+            if curl -sf ${{ secrets.RAILWAY_URL }}/health | grep -q ok; then
+              echo "✅ Deployment health check passed"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
+          done
+          echo "❌ Health check failed after 3 attempts"
+          exit 1

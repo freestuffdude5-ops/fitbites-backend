@@ -20,5 +20,5 @@ USER fitbites
 
 EXPOSE 8000
 
-# No CMD - let railway.toml handle the start command
-# Deployment 1771995351
+# Default CMD (Railway overrides via railway.toml startCommand)
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
