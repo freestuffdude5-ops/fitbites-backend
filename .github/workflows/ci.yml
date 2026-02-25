@@ -79,7 +79,7 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment production --service prolific-optimism
+          railway link --project ${{ secrets.RAILWAY_PROJECT_ID }} --environment production --service prolific-optimism
           railway up --detach --service prolific-optimism
           echo "✅ Deployed to Railway"
 

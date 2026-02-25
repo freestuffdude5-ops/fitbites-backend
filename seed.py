@@ -458,7 +458,7 @@ async def seed():
                 comments=r.get("comments"),
                 shares=r.get("shares"),
                 virality_score=compute_virality(r),
-                published_at=datetime.utcnow() - timedelta(days=random.randint(1, 30)),
+                published_at=datetime.now() - timedelta(days=random.randint(1, 30)),
             )
             session.add(row)
         await session.commit()

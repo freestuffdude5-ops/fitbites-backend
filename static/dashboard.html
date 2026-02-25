@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitBites Analytics Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #141419; --surface2: #1c1c24;
+    --border: #2a2a35; --text: #e4e4e7; --text-muted: #71717a;
+    --accent: #007AFF; --green: #34C759; --red: #FF3B30;
+    --yellow: #FFD60A; --orange: #FF9500; --purple: #AF52DE;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+    padding: 24px; max-width: 1400px; margin: 0 auto;
+  }
+  .header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  }
+  .header h1 { font-size: 28px; font-weight: 700; }
+  .header h1 span { color: var(--accent); }
+  .header .meta { color: var(--text-muted); font-size: 13px; }
+  .health-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 14px;
+  }
+  .health-A, .health-B { background: rgba(52,199,89,0.15); color: var(--green); }
+  .health-C { background: rgba(255,214,10,0.15); color: var(--yellow); }
+  .health-D, .health-F { background: rgba(255,59,48,0.15); color: var(--red); }
+
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 32px;
+  }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .kpi .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi .value { font-size: 32px; font-weight: 700; margin: 4px 0; }
+  .kpi .sub { font-size: 12px; color: var(--text-muted); }
+  .kpi.green .value { color: var(--green); }
+  .kpi.yellow .value { color: var(--yellow); }
+  .kpi.red .value { color: var(--red); }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px;
+  }
+  .card h3 { font-size: 16px; margin-bottom: 16px; font-weight: 600; }
+  .card canvas { max-height: 300px; }
+
+  .funnel { margin-bottom: 32px; }
+  .funnel-bar {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .funnel-bar .fname { width: 200px; font-size: 14px; font-weight: 500; }
+  .funnel-bar .fbar {
+    flex: 1; height: 32px; border-radius: 6px; position: relative;
+    background: var(--surface2); overflow: hidden;
+  }
+  .funnel-bar .fbar-fill {
+    height: 100%; border-radius: 6px; transition: width 0.6s ease;
+    display: flex; align-items: center; padding-left: 12px;
+    font-size: 13px; font-weight: 600; color: white;
+  }
+  .funnel-bar .frate { width: 80px; text-align: right; font-size: 13px; color: var(--text-muted); }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-weight: 500;
+       font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+       border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: var(--surface2); }
+
+  .badge { padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+  .badge-green { background: rgba(52,199,89,0.15); color: var(--green); }
+  .badge-yellow { background: rgba(255,214,10,0.15); color: var(--yellow); }
+  .badge-red { background: rgba(255,59,48,0.15); color: var(--red); }
+
+  .section-title {
+    font-size: 20px; font-weight: 700; margin: 32px 0 16px;
+    padding-top: 16px; border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>🍽️ <span>FitBites</span> Analytics</h1>
+    <div class="meta">Last updated: 2026-02-25 09:58 EST · 30-day window · 23,583 events tracked</div>
+  </div>
+  <div>
+    <span class="health-badge health-A">
+      Health: 92/100 (A)
+    </span>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="label">Daily Active Users</div>
+    <div class="value">217</div>
+    <div class="sub">Last 24 hours</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Weekly Active Users</div>
+    <div class="value">1,156</div>
+    <div class="sub">Last 7 days</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Monthly Active Users</div>
+    <div class="value">1,202</div>
+    <div class="sub">Last 30 days</div>
+  </div>
+  <div class="kpi green">
+    <div class="label">Views / User</div>
+    <div class="value">12.0</div>
+    <div class="sub">Target: 5.0</div>
+  </div>
+  <div class="kpi green">
+    <div class="label">Affiliate CTR</div>
+    <div class="value">52.5%</div>
+    <div class="sub">Target: 15%</div>
+  </div>
+  <div class="kpi yellow">
+    <div class="label">Click → Convert</div>
+    <div class="value">2.09%</div>
+    <div class="sub">Target: 3%</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Est. Revenue (30d)</div>
+    <div class="value">$99.78</div>
+    <div class="sub">ARPU: $0.0830/user</div>
+  </div>
+  <div class="kpi green">
+    <div class="label">Week 1→2 Retention</div>
+    <div class="value">94.4%</div>
+    <div class="sub">202/214 users</div>
+  </div>
+</div>
+
+<!-- Funnel -->
+<h2 class="section-title">📊 Recipe-to-Revenue Funnel</h2>
+<div class="funnel card">
+
+  <div class="funnel-bar">
+    <div class="fname">App Open</div>
+    <div class="fbar">
+      <div class="fbar-fill" style="width: 100.0%; background: linear-gradient(90deg, var(--accent), var(--purple));">
+        5,620
+      </div>
+    </div>
+    <div class="frate"></div>
+  </div>
+  <div class="funnel-bar">
+    <div class="fname">Recipe View</div>
+    <div class="fbar">
+      <div class="fbar-fill" style="width: 256.1%; background: linear-gradient(90deg, var(--accent), var(--purple));">
+        14,392
+      </div>
+    </div>
+    <div class="frate">256.1%</div>
+  </div>
+  <div class="funnel-bar">
+    <div class="fname">Recipe Save</div>
+    <div class="fbar">
+      <div class="fbar-fill" style="width: 38.1%; background: linear-gradient(90deg, var(--accent), var(--purple));">
+        2,139
+      </div>
+    </div>
+    <div class="frate">14.9%</div>
+  </div>
+  <div class="funnel-bar">
+    <div class="fname">Affiliate Click</div>
+    <div class="fbar">
+      <div class="fbar-fill" style="width: 20.5%; background: linear-gradient(90deg, var(--accent), var(--purple));">
+        1,150
+      </div>
+    </div>
+    <div class="frate">53.8%</div>
+  </div>
+  <div class="funnel-bar">
+    <div class="fname">Affiliate Conversion</div>
+    <div class="fbar">
+      <div class="fbar-fill" style="width: 2.0%; background: linear-gradient(90deg, var(--accent), var(--purple));">
+        24
+      </div>
+    </div>
+    <div class="frate">2.1%</div>
+  </div>
+</div>
+
+<!-- Charts Row 1 -->
+<div class="grid">
+  <div class="card">
+    <h3>📈 Daily Active Users (30d)</h3>
+    <canvas id="dauChart"></canvas>
+  </div>
+  <div class="card">
+    <h3>📱 Platform Distribution</h3>
+    <canvas id="platformChart"></canvas>
+  </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="grid">
+  <div class="card">
+    <h3>🔥 Daily Events Breakdown</h3>
+    <canvas id="eventsChart"></canvas>
+  </div>
+  <div class="card">
+    <h3>⏰ Activity by Hour</h3>
+    <canvas id="hourlyChart"></canvas>
+  </div>
+</div>
+
+<!-- Charts Row 3 -->
+<div class="grid">
+  <div class="card">
+    <h3>🏆 Top Recipes by Views</h3>
+    <canvas id="recipesChart"></canvas>
+  </div>
+  <div class="card">
+    <h3>💰 Revenue by Partner</h3>
+    <canvas id="revenueChart"></canvas>
+  </div>
+</div>
+
+<!-- Charts Row 4 -->
+<div class="grid">
+  <div class="card">
+    <h3>🛒 Top Ingredients (Affiliate Clicks)</h3>
+    <canvas id="ingredientsChart"></canvas>
+  </div>
+  <div class="card">
+    <h3>🔗 Affiliate Clicks by Provider</h3>
+    <canvas id="affChart"></canvas>
+  </div>
+</div>
+
+<!-- Tables -->
+<h2 class="section-title">📋 Detailed Breakdown</h2>
+<div class="grid">
+  <div class="card">
+    <h3>Event Counts (30d)</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Event</th><th>Count</th><th>Share</th></tr>
+        <tr><td>recipe_view</td><td>14,392</td><td>61.0%</td></tr><tr><td>app_open</td><td>5,620</td><td>23.8%</td></tr><tr><td>recipe_save</td><td>2,139</td><td>9.1%</td></tr><tr><td>affiliate_click</td><td>1,150</td><td>4.9%</td></tr><tr><td>grocery_list_generated</td><td>258</td><td>1.1%</td></tr><tr><td>affiliate_conversion</td><td>24</td><td>0.1%</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h3>App Version Distribution</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Version</th><th>Users</th></tr>
+        <tr><td>1.2.0</td><td>769</td></tr><tr><td>1.0.0</td><td>763</td></tr><tr><td>1.0.1</td><td>756</td></tr><tr><td>1.1.0</td><td>739</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const chartDefaults = {
+  color: '#71717a',
+  borderColor: '#2a2a35',
+  font: { family: '-apple-system, system-ui, sans-serif' },
+};
+Chart.defaults.color = '#71717a';
+Chart.defaults.borderColor = '#2a2a35';
+
+// DAU Chart
+new Chart(document.getElementById('dauChart'), {
+  type: 'line',
+  data: {
+    labels: ["01-26", "01-27", "01-28", "01-29", "01-30", "01-31", "02-01", "02-02", "02-03", "02-04", "02-05", "02-06", "02-07", "02-08", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-15", "02-16", "02-17", "02-18", "02-19", "02-20", "02-21", "02-22", "02-23", "02-24", "02-25"],
+    datasets: [{
+      label: 'DAU',
+      data: [23, 55, 58, 63, 68, 73, 79, 85, 93, 99, 107, 116, 126, 135, 147, 158, 172, 185, 199, 218, 236, 252, 271, 293, 317, 343, 370, 400, 436, 468, 4],
+      borderColor: '#007AFF',
+      backgroundColor: 'rgba(0,122,255,0.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 2,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } },
+  }
+});
+
+// Platform Chart (Doughnut)
+new Chart(document.getElementById('platformChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ["ios", "android", "web"],
+    datasets: [{
+      data: [1081, 790, 426],
+      backgroundColor: ["#007AFF", "#34C759", "#FF9500"],
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom' },
+    },
+  }
+});
+
+// Daily Events Stacked
+new Chart(document.getElementById('eventsChart'), {
+  type: 'bar',
+  data: {
+    labels: ["01-26", "01-27", "01-28", "01-29", "01-30", "01-31", "02-01", "02-02", "02-03", "02-04", "02-05", "02-06", "02-07", "02-08", "02-09", "02-10", "02-11", "02-12", "02-13", "02-14", "02-15", "02-16", "02-17", "02-18", "02-19", "02-20", "02-21", "02-22", "02-23", "02-24", "02-25"],
+    datasets: [
+      { label: 'Opens', data: [22, 54, 58, 62, 68, 73, 79, 85, 92, 99, 107, 116, 125, 135, 146, 158, 171, 185, 199, 215, 233, 251, 271, 293, 317, 342, 369, 399, 431, 465, 0], backgroundColor: '#007AFF', stack: 'a' },
+      { label: 'Views', data: [64, 144, 145, 160, 196, 166, 202, 209, 233, 237, 225, 237, 363, 330, 337, 364, 477, 422, 484, 614, 606, 638, 720, 758, 828, 866, 961, 1099, 1133, 1162, 12], backgroundColor: '#34C759', stack: 'a' },
+      { label: 'Clicks', data: [6, 12, 15, 16, 16, 11, 22, 21, 22, 17, 21, 22, 26, 22, 31, 22, 27, 24, 29, 54, 52, 60, 57, 64, 55, 66, 94, 85, 86, 94, 1], backgroundColor: '#FF9500', stack: 'a' },
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      x: { stacked: true },
+      y: { stacked: true, beginAtZero: true },
+    },
+    plugins: { legend: { position: 'bottom' } },
+  }
+});
+
+// Hourly
+new Chart(document.getElementById('hourlyChart'), {
+  type: 'bar',
+  data: {
+    labels: ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
+    datasets: [{
+      label: 'Events',
+      data: [743, 407, 200, 171, 226, 405, 1004, 1726, 1483, 1094, 811, 1205, 1841, 1315, 848, 681, 867, 1460, 2016, 1690, 1283, 903, 682, 522],
+      backgroundColor: 'rgba(175,82,222,0.6)',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } },
+  }
+});
+
+// Top Recipes
+new Chart(document.getElementById('recipesChart'), {
+  type: 'bar',
+  data: {
+    labels: ["Lean Ground Turkey Burrito Bow", "Low-Cal Cauliflower Mac & Chee", "Zucchini Noodle Bolognese", "Shrimp Stir-Fry (Under 400cal)", "Zero-Sugar Protein Brownie", "Protein Smoothie Bowl", "High-Protein Greek Yogurt Bowl", "Tuna Stuffed Avocado"],
+    datasets: [{
+      label: 'Views',
+      data: [782, 746, 743, 740, 740, 734, 727, 725],
+      backgroundColor: 'rgba(52,199,89,0.7)',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+  }
+});
+
+// Revenue by Partner
+new Chart(document.getElementById('revenueChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ["amazon", "iherb", "instacart", "hellofresh", "thrive"],
+    datasets: [{
+      data: [5.85, 13.93, 25.0, 50.0, 5.0],
+      backgroundColor: ['#007AFF', '#34C759', '#FF9500', '#AF52DE', '#FF3B30'],
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '65%',
+    plugins: { legend: { position: 'bottom' } },
+  }
+});
+
+// Top Ingredients
+new Chart(document.getElementById('ingredientsChart'), {
+  type: 'bar',
+  data: {
+    labels: ["protein powder", "ground turkey", "sweet potato", "oats", "salmon", "chicken breast", "cottage cheese", "peanut butter"],
+    datasets: [{
+      label: 'Clicks',
+      data: [90, 89, 88, 88, 85, 82, 80, 77],
+      backgroundColor: 'rgba(255,149,0,0.7)',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+  }
+});
+
+// Affiliate Clicks
+new Chart(document.getElementById('affChart'), {
+  type: 'bar',
+  data: {
+    labels: ["amazon", "iherb", "instacart", "hellofresh", "thrive"],
+    datasets: [{
+      label: 'Clicks',
+      data: [569, 211, 157, 113, 100],
+      backgroundColor: ['#007AFF', '#34C759', '#FF9500', '#AF52DE', '#FF3B30'],
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } },
+  }
+});
+</script>
+</body>
+</html>

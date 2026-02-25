@@ -1,0 +1,647 @@
+{
+  "dau": 217,
+  "wau": 1156,
+  "mau": 1202,
+  "total_events_30d": 23583,
+  "dau_trend": [
+    {
+      "date": "2026-01-26",
+      "users": 23
+    },
+    {
+      "date": "2026-01-27",
+      "users": 55
+    },
+    {
+      "date": "2026-01-28",
+      "users": 58
+    },
+    {
+      "date": "2026-01-29",
+      "users": 63
+    },
+    {
+      "date": "2026-01-30",
+      "users": 68
+    },
+    {
+      "date": "2026-01-31",
+      "users": 73
+    },
+    {
+      "date": "2026-02-01",
+      "users": 79
+    },
+    {
+      "date": "2026-02-02",
+      "users": 85
+    },
+    {
+      "date": "2026-02-03",
+      "users": 93
+    },
+    {
+      "date": "2026-02-04",
+      "users": 99
+    },
+    {
+      "date": "2026-02-05",
+      "users": 107
+    },
+    {
+      "date": "2026-02-06",
+      "users": 116
+    },
+    {
+      "date": "2026-02-07",
+      "users": 126
+    },
+    {
+      "date": "2026-02-08",
+      "users": 135
+    },
+    {
+      "date": "2026-02-09",
+      "users": 147
+    },
+    {
+      "date": "2026-02-10",
+      "users": 158
+    },
+    {
+      "date": "2026-02-11",
+      "users": 172
+    },
+    {
+      "date": "2026-02-12",
+      "users": 185
+    },
+    {
+      "date": "2026-02-13",
+      "users": 199
+    },
+    {
+      "date": "2026-02-14",
+      "users": 218
+    },
+    {
+      "date": "2026-02-15",
+      "users": 236
+    },
+    {
+      "date": "2026-02-16",
+      "users": 252
+    },
+    {
+      "date": "2026-02-17",
+      "users": 271
+    },
+    {
+      "date": "2026-02-18",
+      "users": 293
+    },
+    {
+      "date": "2026-02-19",
+      "users": 317
+    },
+    {
+      "date": "2026-02-20",
+      "users": 343
+    },
+    {
+      "date": "2026-02-21",
+      "users": 370
+    },
+    {
+      "date": "2026-02-22",
+      "users": 400
+    },
+    {
+      "date": "2026-02-23",
+      "users": 436
+    },
+    {
+      "date": "2026-02-24",
+      "users": 468
+    },
+    {
+      "date": "2026-02-25",
+      "users": 4
+    }
+  ],
+  "event_counts": {
+    "recipe_view": 14392,
+    "app_open": 5620,
+    "recipe_save": 2139,
+    "affiliate_click": 1150,
+    "grocery_list_generated": 258,
+    "affiliate_conversion": 24
+  },
+  "funnel": {
+    "app_open": 5620,
+    "recipe_view": 14392,
+    "recipe_save": 2139,
+    "affiliate_click": 1150,
+    "grocery_list_generated": 258,
+    "affiliate_conversion": 24
+  },
+  "platforms": [
+    {
+      "platform": "ios",
+      "users": 1081,
+      "events": 14553
+    },
+    {
+      "platform": "android",
+      "users": 790,
+      "events": 6770
+    },
+    {
+      "platform": "web",
+      "users": 426,
+      "events": 2260
+    }
+  ],
+  "top_recipes": [
+    {
+      "id": "r020",
+      "title": "Lean Ground Turkey Burrito Bowl",
+      "views": 782
+    },
+    {
+      "id": "r005",
+      "title": "Low-Cal Cauliflower Mac & Cheese",
+      "views": 746
+    },
+    {
+      "id": "r016",
+      "title": "Zucchini Noodle Bolognese",
+      "views": 743
+    },
+    {
+      "id": "r013",
+      "title": "Shrimp Stir-Fry (Under 400cal)",
+      "views": 740
+    },
+    {
+      "id": "r011",
+      "title": "Zero-Sugar Protein Brownie",
+      "views": 740
+    },
+    {
+      "id": "r015",
+      "title": "Protein Smoothie Bowl",
+      "views": 734
+    },
+    {
+      "id": "r001",
+      "title": "High-Protein Greek Yogurt Bowl",
+      "views": 727
+    },
+    {
+      "id": "r017",
+      "title": "Tuna Stuffed Avocado",
+      "views": 725
+    },
+    {
+      "id": "r012",
+      "title": "Egg White Veggie Omelette",
+      "views": 721
+    },
+    {
+      "id": "r003",
+      "title": "Protein Pancakes - 40g Per Serving",
+      "views": 720
+    }
+  ],
+  "affiliate_clicks": [
+    {
+      "provider": "amazon",
+      "clicks": 569
+    },
+    {
+      "provider": "iherb",
+      "clicks": 211
+    },
+    {
+      "provider": "instacart",
+      "clicks": 157
+    },
+    {
+      "provider": "hellofresh",
+      "clicks": 113
+    },
+    {
+      "provider": "thrive",
+      "clicks": 100
+    }
+  ],
+  "revenue_by_partner": {
+    "amazon": 5.85,
+    "iherb": 13.93,
+    "instacart": 25.0,
+    "hellofresh": 50.0,
+    "thrive": 5.0
+  },
+  "total_revenue_est": 99.78,
+  "total_conversions": 24,
+  "total_clicks": 1150,
+  "daily_events": {
+    "2026-01-26": {
+      "affiliate_click": 6,
+      "app_open": 22,
+      "recipe_save": 14,
+      "recipe_view": 64
+    },
+    "2026-01-27": {
+      "affiliate_click": 12,
+      "app_open": 54,
+      "grocery_list_generated": 2,
+      "recipe_save": 19,
+      "recipe_view": 144
+    },
+    "2026-01-28": {
+      "affiliate_click": 15,
+      "app_open": 58,
+      "grocery_list_generated": 3,
+      "recipe_save": 26,
+      "recipe_view": 145
+    },
+    "2026-01-29": {
+      "affiliate_click": 16,
+      "app_open": 62,
+      "grocery_list_generated": 4,
+      "recipe_save": 17,
+      "recipe_view": 160
+    },
+    "2026-01-30": {
+      "affiliate_click": 16,
+      "app_open": 68,
+      "grocery_list_generated": 3,
+      "recipe_save": 28,
+      "recipe_view": 196
+    },
+    "2026-01-31": {
+      "affiliate_click": 11,
+      "affiliate_conversion": 3,
+      "app_open": 73,
+      "grocery_list_generated": 4,
+      "recipe_save": 23,
+      "recipe_view": 166
+    },
+    "2026-02-01": {
+      "affiliate_click": 22,
+      "affiliate_conversion": 2,
+      "app_open": 79,
+      "grocery_list_generated": 3,
+      "recipe_save": 33,
+      "recipe_view": 202
+    },
+    "2026-02-02": {
+      "affiliate_click": 21,
+      "app_open": 85,
+      "grocery_list_generated": 4,
+      "recipe_save": 33,
+      "recipe_view": 209
+    },
+    "2026-02-03": {
+      "affiliate_click": 22,
+      "affiliate_conversion": 1,
+      "app_open": 92,
+      "grocery_list_generated": 4,
+      "recipe_save": 33,
+      "recipe_view": 233
+    },
+    "2026-02-04": {
+      "affiliate_click": 17,
+      "app_open": 99,
+      "grocery_list_generated": 4,
+      "recipe_save": 31,
+      "recipe_view": 237
+    },
+    "2026-02-05": {
+      "affiliate_click": 21,
+      "app_open": 107,
+      "grocery_list_generated": 6,
+      "recipe_save": 39,
+      "recipe_view": 225
+    },
+    "2026-02-06": {
+      "affiliate_click": 22,
+      "app_open": 116,
+      "grocery_list_generated": 5,
+      "recipe_save": 42,
+      "recipe_view": 237
+    },
+    "2026-02-07": {
+      "affiliate_click": 26,
+      "affiliate_conversion": 1,
+      "app_open": 125,
+      "grocery_list_generated": 7,
+      "recipe_save": 47,
+      "recipe_view": 363
+    },
+    "2026-02-08": {
+      "affiliate_click": 22,
+      "app_open": 135,
+      "grocery_list_generated": 3,
+      "recipe_save": 53,
+      "recipe_view": 330
+    },
+    "2026-02-09": {
+      "affiliate_click": 31,
+      "app_open": 146,
+      "grocery_list_generated": 5,
+      "recipe_save": 60,
+      "recipe_view": 337
+    },
+    "2026-02-10": {
+      "affiliate_click": 22,
+      "app_open": 158,
+      "grocery_list_generated": 5,
+      "recipe_save": 55,
+      "recipe_view": 364
+    },
+    "2026-02-11": {
+      "affiliate_click": 27,
+      "app_open": 171,
+      "grocery_list_generated": 5,
+      "recipe_save": 81,
+      "recipe_view": 477
+    },
+    "2026-02-12": {
+      "affiliate_click": 24,
+      "affiliate_conversion": 1,
+      "app_open": 185,
+      "grocery_list_generated": 12,
+      "recipe_save": 66,
+      "recipe_view": 422
+    },
+    "2026-02-13": {
+      "affiliate_click": 29,
+      "app_open": 199,
+      "grocery_list_generated": 15,
+      "recipe_save": 70,
+      "recipe_view": 484
+    },
+    "2026-02-14": {
+      "affiliate_click": 54,
+      "affiliate_conversion": 1,
+      "app_open": 215,
+      "grocery_list_generated": 8,
+      "recipe_save": 89,
+      "recipe_view": 614
+    },
+    "2026-02-15": {
+      "affiliate_click": 52,
+      "affiliate_conversion": 3,
+      "app_open": 233,
+      "grocery_list_generated": 10,
+      "recipe_save": 69,
+      "recipe_view": 606
+    },
+    "2026-02-16": {
+      "affiliate_click": 60,
+      "app_open": 251,
+      "grocery_list_generated": 9,
+      "recipe_save": 90,
+      "recipe_view": 638
+    },
+    "2026-02-17": {
+      "affiliate_click": 57,
+      "affiliate_conversion": 1,
+      "app_open": 271,
+      "grocery_list_generated": 10,
+      "recipe_save": 105,
+      "recipe_view": 720
+    },
+    "2026-02-18": {
+      "affiliate_click": 64,
+      "affiliate_conversion": 2,
+      "app_open": 293,
+      "grocery_list_generated": 18,
+      "recipe_save": 125,
+      "recipe_view": 758
+    },
+    "2026-02-19": {
+      "affiliate_click": 55,
+      "app_open": 317,
+      "grocery_list_generated": 14,
+      "recipe_save": 111,
+      "recipe_view": 828
+    },
+    "2026-02-20": {
+      "affiliate_click": 66,
+      "affiliate_conversion": 1,
+      "app_open": 342,
+      "grocery_list_generated": 22,
+      "recipe_save": 126,
+      "recipe_view": 866
+    },
+    "2026-02-21": {
+      "affiliate_click": 94,
+      "app_open": 369,
+      "grocery_list_generated": 18,
+      "recipe_save": 138,
+      "recipe_view": 961
+    },
+    "2026-02-22": {
+      "affiliate_click": 85,
+      "affiliate_conversion": 1,
+      "app_open": 399,
+      "grocery_list_generated": 23,
+      "recipe_save": 161,
+      "recipe_view": 1099
+    },
+    "2026-02-23": {
+      "affiliate_click": 86,
+      "affiliate_conversion": 4,
+      "app_open": 431,
+      "grocery_list_generated": 19,
+      "recipe_save": 164,
+      "recipe_view": 1133
+    },
+    "2026-02-24": {
+      "affiliate_click": 94,
+      "affiliate_conversion": 2,
+      "app_open": 465,
+      "grocery_list_generated": 13,
+      "recipe_save": 188,
+      "recipe_view": 1162
+    },
+    "2026-02-25": {
+      "affiliate_click": 1,
+      "affiliate_conversion": 1,
+      "recipe_save": 3,
+      "recipe_view": 12
+    }
+  },
+  "hourly_pattern": [
+    {
+      "hour": 0,
+      "events": 743
+    },
+    {
+      "hour": 1,
+      "events": 407
+    },
+    {
+      "hour": 2,
+      "events": 200
+    },
+    {
+      "hour": 3,
+      "events": 171
+    },
+    {
+      "hour": 4,
+      "events": 226
+    },
+    {
+      "hour": 5,
+      "events": 405
+    },
+    {
+      "hour": 6,
+      "events": 1004
+    },
+    {
+      "hour": 7,
+      "events": 1726
+    },
+    {
+      "hour": 8,
+      "events": 1483
+    },
+    {
+      "hour": 9,
+      "events": 1094
+    },
+    {
+      "hour": 10,
+      "events": 811
+    },
+    {
+      "hour": 11,
+      "events": 1205
+    },
+    {
+      "hour": 12,
+      "events": 1841
+    },
+    {
+      "hour": 13,
+      "events": 1315
+    },
+    {
+      "hour": 14,
+      "events": 848
+    },
+    {
+      "hour": 15,
+      "events": 681
+    },
+    {
+      "hour": 16,
+      "events": 867
+    },
+    {
+      "hour": 17,
+      "events": 1460
+    },
+    {
+      "hour": 18,
+      "events": 2016
+    },
+    {
+      "hour": 19,
+      "events": 1690
+    },
+    {
+      "hour": 20,
+      "events": 1283
+    },
+    {
+      "hour": 21,
+      "events": 903
+    },
+    {
+      "hour": 22,
+      "events": 682
+    },
+    {
+      "hour": 23,
+      "events": 522
+    }
+  ],
+  "top_ingredients": [
+    {
+      "ingredient": "protein powder",
+      "clicks": 90
+    },
+    {
+      "ingredient": "ground turkey",
+      "clicks": 89
+    },
+    {
+      "ingredient": "sweet potato",
+      "clicks": 88
+    },
+    {
+      "ingredient": "oats",
+      "clicks": 88
+    },
+    {
+      "ingredient": "salmon",
+      "clicks": 85
+    },
+    {
+      "ingredient": "chicken breast",
+      "clicks": 82
+    },
+    {
+      "ingredient": "cottage cheese",
+      "clicks": 80
+    },
+    {
+      "ingredient": "peanut butter",
+      "clicks": 77
+    },
+    {
+      "ingredient": "spinach",
+      "clicks": 75
+    },
+    {
+      "ingredient": "avocado",
+      "clicks": 73
+    }
+  ],
+  "app_versions": [
+    {
+      "version": "1.2.0",
+      "users": 769
+    },
+    {
+      "version": "1.0.0",
+      "users": 763
+    },
+    {
+      "version": "1.0.1",
+      "users": 756
+    },
+    {
+      "version": "1.1.0",
+      "users": 739
+    }
+  ],
+  "retention": {
+    "week1_users": 214,
+    "week2_retained": 202,
+    "rate": 94.4
+  },
+  "arpu": 0.083,
+  "affiliate_ctr": 52.5,
+  "click_to_convert": 2.09,
+  "views_per_user": 12.0,
+  "clickers": 631
+}
