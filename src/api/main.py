@@ -613,8 +613,10 @@ app.include_router(avatar_router)
 
 from src.api.affiliate_webhooks import router as affiliate_webhooks_router
 from src.api.admin import router as admin_router
+from src.api.affiliate_admin import router as affiliate_admin_router
 app.include_router(affiliate_webhooks_router)
 app.include_router(admin_router)
+app.include_router(affiliate_admin_router)
 
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 
