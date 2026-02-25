@@ -14,7 +14,7 @@ from src.db.engine import get_session
 from src.db.social_tables import FollowRow, ActivityRow, RecipeShareRow
 from src.db.user_tables import UserRow, SavedRecipeRow
 from src.db.tables import RecipeRow
-from src.auth import require_user
+from src.auth import require_user, get_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -173,7 +173,7 @@ async def get_following(
 @router.get("/users/{user_id}/profile")
 async def get_user_profile(
     user_id: str,
-    user: UserRow | None = Depends(require_user),
+    user: UserRow | None = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
     """Get a user's public profile with social stats."""

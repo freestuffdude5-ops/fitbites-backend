@@ -10,11 +10,12 @@ router = APIRouter(prefix="/api/v1/db-admin", tags=["db-admin"])
 
 
 def verify_admin_key(x_admin_key: str = Header(None)) -> None:
-    """Verify admin API key from request header."""
+    """Verify admin API key from request header (timing-safe)."""
+    import hmac
     expected_key = settings.ADMIN_API_KEY
     if not expected_key:
         raise HTTPException(503, "Admin endpoints disabled (ADMIN_API_KEY not set)")
-    if x_admin_key != expected_key:
+    if not x_admin_key or not hmac.compare_digest(x_admin_key, expected_key):
         raise HTTPException(403, "Invalid admin key")
 
 

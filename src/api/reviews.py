@@ -14,6 +14,7 @@ from src.db.engine import get_session
 from src.db.tables import RecipeRow
 from src.db.user_tables import UserRow, SavedRecipeRow
 from src.db.review_tables import RecipeReviewRow, CookingLogRow, ReviewHelpfulRow
+from src.auth import require_user, get_current_user
 
 router = APIRouter(prefix="/api/v1", tags=["reviews", "cooking", "search"])
 
@@ -47,7 +48,7 @@ class CookingLogRequest(BaseModel):
 async def create_review(
     recipe_id: str,
     req: ReviewCreateRequest,
-    user_id: str = Query(..., description="Authenticated user ID"),
+    user: UserRow = Depends(require_user),
     session: AsyncSession = Depends(get_session),
 ):
     """Submit a review for a recipe. One review per user per recipe."""
@@ -58,17 +59,10 @@ async def create_review(
     if not recipe:
         raise HTTPException(404, "Recipe not found")
 
-    # Verify user exists
-    user = (await session.execute(
-        select(UserRow).where(UserRow.id == user_id)
-    )).scalar_one_or_none()
-    if not user:
-        raise HTTPException(404, "User not found")
-
     # Check for existing review
     existing = (await session.execute(
         select(RecipeReviewRow).where(
-            RecipeReviewRow.user_id == user_id,
+            RecipeReviewRow.user_id == user.id,
             RecipeReviewRow.recipe_id == recipe_id,
         )
     )).scalar_one_or_none()
@@ -77,7 +71,7 @@ async def create_review(
 
     review = RecipeReviewRow(
         id=str(uuid.uuid4()),
-        user_id=user_id,
+        user_id=user.id,
         recipe_id=recipe_id,
         rating=req.rating,
         title=req.title,
@@ -160,7 +154,7 @@ async def update_review(
     recipe_id: str,
     review_id: str,
     req: ReviewUpdateRequest,
-    user_id: str = Query(...),
+    user: UserRow = Depends(require_user),
     session: AsyncSession = Depends(get_session),
 ):
     """Update your review."""
@@ -168,7 +162,7 @@ async def update_review(
         select(RecipeReviewRow).where(
             RecipeReviewRow.id == review_id,
             RecipeReviewRow.recipe_id == recipe_id,
-            RecipeReviewRow.user_id == user_id,
+            RecipeReviewRow.user_id == user.id,
         )
     )).scalar_one_or_none()
     if not review:
@@ -180,7 +174,6 @@ async def update_review(
     review.updated_at = datetime.now(timezone.utc)
     await session.commit()
 
-    user = (await session.execute(select(UserRow).where(UserRow.id == user_id))).scalar_one()
     return _review_response(review, user)
 
 
@@ -188,7 +181,7 @@ async def update_review(
 async def delete_review(
     recipe_id: str,
     review_id: str,
-    user_id: str = Query(...),
+    user: UserRow = Depends(require_user),
     session: AsyncSession = Depends(get_session),
 ):
     """Delete your review."""
@@ -196,7 +189,7 @@ async def delete_review(
         delete(RecipeReviewRow).where(
             RecipeReviewRow.id == review_id,
             RecipeReviewRow.recipe_id == recipe_id,
-            RecipeReviewRow.user_id == user_id,
+            RecipeReviewRow.user_id == user.id,
         )
     )
     if result.rowcount == 0:
@@ -207,14 +200,14 @@ async def delete_review(
 @router.post("/reviews/{review_id}/helpful")
 async def mark_helpful(
     review_id: str,
-    user_id: str = Query(...),
+    user: UserRow = Depends(require_user),
     session: AsyncSession = Depends(get_session),
 ):
     """Mark a review as helpful. Toggles on/off."""
     # Check existing vote
     existing = (await session.execute(
         select(ReviewHelpfulRow).where(
-            ReviewHelpfulRow.user_id == user_id,
+            ReviewHelpfulRow.user_id == user.id,
             ReviewHelpfulRow.review_id == review_id,
         )
     )).scalar_one_or_none()
@@ -237,7 +230,7 @@ async def mark_helpful(
         # Toggle on
         vote = ReviewHelpfulRow(
             id=str(uuid.uuid4()),
-            user_id=user_id,
+            user_id=user.id,
             review_id=review_id,
         )
         session.add(vote)
@@ -248,21 +241,14 @@ async def mark_helpful(
 
 # ── Cooking History ──────────────────────────────────────────────────────────
 
-@router.post("/users/{user_id}/cooking-log", status_code=201)
+@router.post("/cooking-log", status_code=201)
 async def log_cooking(
-    user_id: str,
     recipe_id: str = Query(...),
     req: CookingLogRequest = CookingLogRequest(),
+    user: UserRow = Depends(require_user),
     session: AsyncSession = Depends(get_session),
 ):
     """Log that you cooked a recipe. Used for stats, streaks, and personalization."""
-    # Verify user
-    user = (await session.execute(
-        select(UserRow).where(UserRow.id == user_id)
-    )).scalar_one_or_none()
-    if not user:
-        raise HTTPException(404, "User not found")
-
     # Verify recipe
     recipe = (await session.execute(
         select(RecipeRow).where(RecipeRow.id == recipe_id)
@@ -272,7 +258,7 @@ async def log_cooking(
 
     log = CookingLogRow(
         id=str(uuid.uuid4()),
-        user_id=user_id,
+        user_id=user.id,
         recipe_id=recipe_id,
         servings=req.servings,
         notes=req.notes,
@@ -289,19 +275,19 @@ async def log_cooking(
     }
 
 
-@router.get("/users/{user_id}/cooking-log")
+@router.get("/me/cooking-log")
 async def get_cooking_history(
-    user_id: str,
     limit: int = Query(30, ge=1, le=200),
     offset: int = Query(0, ge=0),
+    user: UserRow = Depends(require_user),
     session: AsyncSession = Depends(get_session),
 ):
-    """Get cooking history with stats."""
+    """Get your cooking history with stats."""
     # Fetch logs with recipe data
     stmt = (
         select(CookingLogRow, RecipeRow)
         .join(RecipeRow, CookingLogRow.recipe_id == RecipeRow.id)
-        .where(CookingLogRow.user_id == user_id)
+        .where(CookingLogRow.user_id == user.id)
         .order_by(CookingLogRow.cooked_at.desc())
         .offset(offset)
         .limit(limit)
@@ -309,7 +295,7 @@ async def get_cooking_history(
     results = (await session.execute(stmt)).all()
 
     total = (await session.execute(
-        select(func.count(CookingLogRow.id)).where(CookingLogRow.user_id == user_id)
+        select(func.count(CookingLogRow.id)).where(CookingLogRow.user_id == user.id)
     )).scalar() or 0
 
     # Cooking stats
@@ -323,7 +309,7 @@ async def get_cooking_history(
             (RecipeRow.protein_g or 0) * CookingLogRow.servings
         ).label("total_protein"),
     ).join(RecipeRow, CookingLogRow.recipe_id == RecipeRow.id).where(
-        CookingLogRow.user_id == user_id
+        CookingLogRow.user_id == user.id
     )
     stats = (await session.execute(stats_stmt)).one()
 
@@ -355,10 +341,10 @@ async def get_cooking_history(
     }
 
 
-@router.get("/users/{user_id}/cooking-stats")
+@router.get("/me/cooking-stats")
 async def get_cooking_stats(
-    user_id: str,
     days: int = Query(7, ge=1, le=90, description="Stats window in days"),
+    user: UserRow = Depends(require_user),
     session: AsyncSession = Depends(get_session),
 ):
     """Get cooking stats for a time window — streak, favorites, macro totals.
@@ -371,7 +357,7 @@ async def get_cooking_stats(
     logs = (await session.execute(
         select(CookingLogRow, RecipeRow)
         .join(RecipeRow, CookingLogRow.recipe_id == RecipeRow.id)
-        .where(CookingLogRow.user_id == user_id, CookingLogRow.cooked_at >= cutoff)
+        .where(CookingLogRow.user_id == user.id, CookingLogRow.cooked_at >= cutoff)
         .order_by(CookingLogRow.cooked_at.desc())
     )).all()
 

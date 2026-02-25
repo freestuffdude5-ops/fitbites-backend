@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, func, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import require_user
+from src.auth import require_user, get_current_user
 from src.db.engine import get_session
 from src.db.comment_tables import CommentRow, CommentLikeRow
 from src.db.user_tables import UserRow
@@ -110,7 +110,7 @@ async def get_comments(
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     sort: str = Query("newest", pattern="^(newest|oldest|top)$"),
-    user: UserRow | None = Depends(require_user),
+    user: UserRow | None = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
     """List comments on a recipe with nested replies."""
@@ -189,7 +189,7 @@ async def get_replies(
     comment_id: str,
     offset: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
-    user: UserRow | None = Depends(require_user),
+    user: UserRow | None = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
     """Get replies to a specific comment."""

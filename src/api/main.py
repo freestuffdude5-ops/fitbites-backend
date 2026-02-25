@@ -1,6 +1,7 @@
 """FitBites API — FastAPI application with DB-backed storage."""
 from __future__ import annotations
 
+import json
 import logging
 import time
 
@@ -72,6 +73,20 @@ def _build_pipeline() -> ScraperPipeline:
     )
 
 logger = logging.getLogger(__name__)
+
+
+# ── Admin auth helper (timing-safe) ──────────────────────────────────────────
+import hmac as _hmac
+from fastapi import Header
+
+
+def _verify_admin(x_admin_key: str = Header(None)) -> None:
+    """Verify admin API key (timing-safe). Used by scrape + revenue endpoints."""
+    expected = settings.ADMIN_API_KEY if hasattr(settings, 'ADMIN_API_KEY') else None
+    if not expected:
+        raise HTTPException(503, "Admin endpoints disabled")
+    if not x_admin_key or not _hmac.compare_digest(x_admin_key, expected):
+        raise HTTPException(403, "Invalid admin key")
 
 
 @asynccontextmanager
@@ -506,13 +521,14 @@ async def track_affiliate_click(
     recipe_id: str,
     ingredient: str,
     provider: str,
-    user_id: str | None = None,
+    user: "UserRow | None" = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
     """Track an affiliate link click for analytics and commission attribution.
 
     Returns a click_id for deduplication on the client side.
     """
+    user_id = user.id if user else None
     click_id = generate_click_id(user_id, recipe_id, ingredient, provider)
 
     # Store click in DB (fire-and-forget pattern for speed)
@@ -539,8 +555,11 @@ _SCRAPE_COOLDOWN_SECONDS: int = 300  # 5 minutes between scrapes
 
 
 @app.post("/api/v1/scrape")
-async def trigger_scrape(session: AsyncSession = Depends(get_session)):
-    """Manually trigger a scrape run (rate limited to once per 5 minutes)."""
+async def trigger_scrape(
+    session: AsyncSession = Depends(get_session),
+    _auth: None = Depends(_verify_admin),
+):
+    """Manually trigger a scrape run (rate limited, admin-only)."""
     global _last_scrape_time
     now = time.time()
     if now - _last_scrape_time < _SCRAPE_COOLDOWN_SECONDS:
@@ -617,6 +636,9 @@ from src.api.affiliate_admin import router as affiliate_admin_router
 app.include_router(affiliate_webhooks_router)
 app.include_router(admin_router)
 app.include_router(affiliate_admin_router)
+
+from src.api.collections import router as collections_router
+app.include_router(collections_router)
 
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 
@@ -696,7 +718,12 @@ async def redirect_affiliate(
             {
                 "id": link_id + "_" + str(int(time.time())),
                 "uid": uid,
-                "props": f'{{"provider":"{link.provider}","ingredient":"{link.ingredient}","recipe_id":"{link.recipe_id}","commission_pct":{link.commission_pct}}}',
+                "props": json.dumps({
+                    "provider": link.provider,
+                    "ingredient": link.ingredient,
+                    "recipe_id": link.recipe_id,
+                    "commission_pct": link.commission_pct,
+                }),
             },
         )
         await session.commit()
@@ -709,6 +736,7 @@ async def redirect_affiliate(
 @app.get("/api/v1/admin/affiliate-revenue")
 async def affiliate_revenue_dashboard(
     hours: int = Query(24, ge=1, le=720),
+    _auth: None = Depends(_verify_admin),
 ):
     """Real-time affiliate revenue dashboard.
 

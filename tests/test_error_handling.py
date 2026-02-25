@@ -34,14 +34,12 @@ async def test_invalid_pagination_returns_structured_error(client):
 
 @pytest.mark.asyncio
 async def test_rate_limit_returns_structured_error(client):
-    """Triggering scrape twice should return rate limit error."""
-    # First call succeeds (or fails gracefully without API keys)
-    resp1 = await client.post("/api/v1/scrape")
-    # Second call should be rate-limited
-    resp2 = await client.post("/api/v1/scrape")
-    assert resp2.status_code == 429
-    data = resp2.json()
-    assert "error" in data
+    """Scrape endpoint requires admin auth."""
+    # Without admin key, should get 503 (admin not configured) or 403
+    resp = await client.post("/api/v1/scrape")
+    assert resp.status_code in (403, 503)
+    data = resp.json()
+    assert "error" in data or "message" in data
 
 
 @pytest.mark.asyncio
