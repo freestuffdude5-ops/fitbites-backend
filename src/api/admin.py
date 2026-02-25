@@ -6,7 +6,7 @@ from src.db.engine import get_session
 from src.db.repository import RecipeRepository
 from config.settings import settings
 
-router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
+router = APIRouter(prefix="/api/v1/db-admin", tags=["db-admin"])
 
 
 def verify_admin_key(x_admin_key: str = Header(None)) -> None:
