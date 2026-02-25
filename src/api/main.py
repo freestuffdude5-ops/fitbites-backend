@@ -643,6 +643,12 @@ app.include_router(collections_router)
 from src.api.password_reset import router as password_reset_router
 app.include_router(password_reset_router)
 
+from src.api.onboarding import router as onboarding_router
+app.include_router(onboarding_router)
+
+from src.api.shopping_list import router as shopping_list_router
+app.include_router(shopping_list_router)
+
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 
 @app.post("/api/v1/affiliate-links/tracked")
