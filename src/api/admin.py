@@ -1,5 +1,5 @@
 """Admin API endpoints for FitBites - protected by admin-only auth."""
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Body, Depends, HTTPException, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.engine import get_session
@@ -190,4 +190,97 @@ async def get_stats(
         "recipes": recipe_count,
         "users": user_count,
         "database_url": settings.DATABASE_URL.split("@")[-1] if settings.DATABASE_URL else "not set",  # Hide password
+    }
+
+
+@router.post("/import-bulk")
+async def import_bulk_recipes(
+    request_data: dict = Body(...),
+    session: AsyncSession = Depends(get_session),
+    _auth: None = Depends(verify_admin_key),
+):
+    """Import recipes in bulk from JSON payload. Admin-only.
+    
+    Expects: {"recipes": [{title, description, source_platform, source_url, ...}]}
+    """
+    from src.db.tables import RecipeRow
+    from sqlalchemy import select, func
+    import uuid, random
+    from datetime import datetime, timedelta, timezone
+    
+    recipes_data = request_data.get("recipes", [])
+    if not recipes_data:
+        raise HTTPException(400, "No recipes provided")
+    
+    inserted = 0
+    skipped = 0
+    errors = []
+    
+    # Get existing source_urls for dedup
+    existing_result = await session.execute(select(RecipeRow.source_url))
+    existing_urls = {row[0] for row in existing_result.fetchall()}
+    
+    for rd in recipes_data:
+        try:
+            source_url = rd.get("source_url", "")
+            if not source_url:
+                errors.append(f"Missing source_url for: {rd.get('title','?')[:40]}")
+                continue
+            if source_url in existing_urls:
+                skipped += 1
+                continue
+            
+            now = datetime.now(timezone.utc)
+            platform = rd.get("source_platform", rd.get("platform", "reddit"))
+            author = rd.get("source_author", rd.get("creator_username", "unknown"))
+            
+            row = RecipeRow(
+                id=str(uuid.uuid4()),
+                title=rd.get("title", "Untitled")[:500],
+                description=rd.get("description", ""),
+                creator_username=author,
+                creator_display_name=author,
+                creator_platform=platform,
+                creator_profile_url=rd.get("creator_profile_url", f"https://{platform}.com/@{author}"),
+                creator_avatar_url=rd.get("creator_avatar_url"),
+                creator_follower_count=rd.get("creator_follower_count"),
+                platform=platform,
+                source_url=source_url,
+                thumbnail_url=rd.get("thumbnail_url", ""),
+                video_url=rd.get("video_url"),
+                ingredients=rd.get("ingredients", []),
+                steps=rd.get("steps", []),
+                tags=rd.get("tags", []),
+                calories=rd.get("calories"),
+                protein_g=rd.get("protein_g"),
+                carbs_g=rd.get("carbs_g"),
+                fat_g=rd.get("fat_g"),
+                fiber_g=rd.get("fiber_g"),
+                sugar_g=rd.get("sugar_g"),
+                servings=rd.get("servings", 1),
+                views=int(rd.get("engagement_score", rd.get("views", 0))),
+                likes=rd.get("likes"),
+                comments=rd.get("comments"),
+                shares=rd.get("shares"),
+                cook_time_minutes=rd.get("cook_time_min", rd.get("cook_time_minutes")),
+                difficulty=rd.get("difficulty"),
+                virality_score=float(rd.get("quality_score", rd.get("virality_score", random.randint(40, 80)))),
+                scraped_at=now,
+                published_at=now - timedelta(days=random.randint(1, 30)),
+            )
+            session.add(row)
+            existing_urls.add(source_url)
+            inserted += 1
+        except Exception as e:
+            errors.append(f"Error with '{rd.get('title','?')[:40]}': {str(e)}")
+    
+    await session.commit()
+    
+    total = (await session.execute(select(func.count(RecipeRow.id)))).scalar()
+    return {
+        "status": "success",
+        "inserted": inserted,
+        "skipped": skipped,
+        "errors": errors[:10],
+        "total_recipes": total,
     }
