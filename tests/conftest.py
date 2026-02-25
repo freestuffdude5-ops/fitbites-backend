@@ -58,6 +58,10 @@ async def setup_db():
     import src.db.user_tables  # noqa: F401
     import src.db.meal_plan_tables  # noqa: F401
     import src.db.review_tables  # noqa: F401
+    import src.db.comment_tables  # noqa: F401
+    import src.db.recently_viewed_tables  # noqa: F401
+    import src.db.social_tables  # noqa: F401
+    import src.db.subscription_tables  # noqa: F401
     from src.db.tables import RecipeRow
     from src.models import Platform
 
@@ -96,3 +100,101 @@ async def client():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
+
+
+# Alias for consistency with new tests
+@pytest_asyncio.fixture
+async def async_client(client):
+    """Alias for client fixture."""
+    yield client
+
+
+@pytest_asyncio.fixture
+async def auth_headers(client):
+    """Create a test user and return auth headers."""
+    # Sign up test user
+    response = await client.post(
+        "/api/v1/auth/signup",
+        json={
+            "email": "testuser@example.com",
+            "password": "testpass123",
+            "display_name": "Test User",
+        }
+    )
+    token_data = response.json()
+    user_id = token_data["user"]["id"]
+    return {
+        "Authorization": f"Bearer {token_data['access_token']}",
+        "user_id": user_id,
+    }
+
+
+@pytest_asyncio.fixture
+async def test_recipe():
+    """Create a test recipe."""
+    from src.db.tables import RecipeRow
+    from src.models import Platform
+    
+    async with TestSession() as session:
+        recipe = RecipeRow(
+            title="Test Protein Bowl",
+            creator_username="chef_test",
+            creator_platform=Platform.REDDIT,
+            creator_profile_url="https://reddit.com/u/chef_test",
+            platform=Platform.REDDIT,
+            source_url="https://reddit.com/r/test/123",
+            ingredients=[{"name": "chicken breast", "quantity": "200g"}],
+            steps=["Cook chicken", "Serve"],
+            calories=450,
+            protein_g=45,
+            carbs_g=40,
+            fat_g=10,
+            cook_time_minutes=25,
+            virality_score=850,
+            tags=["high-protein", "low-carb"],
+        )
+        session.add(recipe)
+        await session.commit()
+        await session.refresh(recipe)
+        return {
+            "id": recipe.id,
+            "title": recipe.title,
+            "platform": recipe.platform,
+        }
+
+
+@pytest_asyncio.fixture
+async def test_recipes():
+    """Create multiple test recipes."""
+    from src.db.tables import RecipeRow
+    from src.models import Platform
+    
+    recipes = []
+    async with TestSession() as session:
+        for i in range(5):
+            recipe = RecipeRow(
+                title=f"Test Recipe {i}",
+                creator_username=f"creator_{i}",
+                creator_platform=Platform.YOUTUBE,
+                creator_profile_url=f"https://youtube.com/@creator_{i}",
+                platform=Platform.YOUTUBE,
+                source_url=f"https://youtube.com/watch?v={i}",
+                ingredients=[{"name": "ingredient1", "quantity": "100g"}],
+                steps=["step1", "step2"],
+                calories=400 + i*10,
+                protein_g=30 + i,
+                carbs_g=40,
+                fat_g=10,
+                cook_time_minutes=20 + i,
+                virality_score=800 + i*10,
+                tags=["test"],
+            )
+            session.add(recipe)
+            await session.flush()
+            recipes.append({
+                "id": recipe.id,
+                "title": recipe.title,
+                "platform": recipe.platform,
+            })
+        await session.commit()
+    return recipes

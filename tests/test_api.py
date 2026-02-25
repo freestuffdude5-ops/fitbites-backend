@@ -123,5 +123,11 @@ async def test_affiliate_links(client):
     resp = await client.post("/api/v1/affiliate-links", json=["chicken breast", "olive oil"])
     assert resp.status_code == 200
     data = resp.json()
-    assert isinstance(data, list)
-    assert len(data) == 2
+    # New format includes compliance metadata
+    assert "ingredients" in data
+    assert "compliance" in data
+    assert isinstance(data["ingredients"], list)
+    assert len(data["ingredients"]) == 2
+    # Verify compliance disclosure present
+    assert data["compliance"]["has_affiliate_links"] is True
+    assert "disclosure" in data["compliance"]
