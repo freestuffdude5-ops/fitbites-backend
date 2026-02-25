@@ -8,6 +8,7 @@ from sqlalchemy import (
     Column, String, Integer, Float, Text, DateTime, JSON, Boolean,
     ForeignKey, Index, UniqueConstraint
 )
+from sqlalchemy.orm import relationship
 
 from src.db.tables import Base
 
@@ -29,6 +30,12 @@ class UserRow(Base):
 
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     last_active_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    # Relationships
+    comments = relationship("CommentRow", back_populates="author", foreign_keys="CommentRow.user_id")
+
+    # Relationships
+    comments = relationship("CommentRow", back_populates="author", cascade="all, delete-orphan")
 
 
 class SavedRecipeRow(Base):
