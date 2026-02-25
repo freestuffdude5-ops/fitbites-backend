@@ -43,7 +43,7 @@ async def track_event(payload: EventPayload, session: AsyncSession = Depends(get
         platform=payload.platform,
         app_version=payload.app_version,
         properties=payload.properties,
-        timestamp=payload.timestamp or datetime.now(timezone.utc),
+        timestamp=payload.timestamp or datetime.utcnow(),
     ))
     await session.commit()
     return {"status": "accepted"}
@@ -60,7 +60,7 @@ async def track_events_batch(payload: BatchPayload, session: AsyncSession = Depe
             platform=ev.platform,
             app_version=ev.app_version,
             properties=ev.properties,
-            timestamp=ev.timestamp or datetime.now(timezone.utc),
+            timestamp=ev.timestamp or datetime.utcnow(),
         ))
     await session.commit()
     return {"status": "accepted", "count": len(payload.events)}
@@ -74,7 +74,7 @@ async def get_metrics(
     session: AsyncSession = Depends(get_session),
 ):
     """Real-time dashboard metrics. Shows event counts, top recipes, API performance."""
-    since = datetime.now(timezone.utc) - timedelta(hours=hours)
+    since = datetime.utcnow() - timedelta(hours=hours)
 
     # Event counts by type
     event_counts_q = select(
@@ -167,7 +167,7 @@ async def get_funnel(
     session: AsyncSession = Depends(get_session),
 ):
     """Recipe-to-revenue funnel: recipe_view → affiliate_click → affiliate_conversion."""
-    since = datetime.now(timezone.utc) - timedelta(hours=hours)
+    since = datetime.utcnow() - timedelta(hours=hours)
 
     funnel_events = ["app_open", "recipe_view", "recipe_save", "affiliate_click", "grocery_list_generated", "affiliate_conversion"]
     funnel = {}

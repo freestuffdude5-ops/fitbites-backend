@@ -49,8 +49,8 @@ class SubscriptionRow(Base):
     variant_id = Column(String(50), nullable=True)
     price_paid = Column(Float, nullable=True)  # Actual price (for A/B analysis)
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.utcnow())
+    updated_at = Column(DateTime, default=lambda: datetime.utcnow(), onupdate=lambda: datetime.utcnow())
 
 
 class PaymentEventRow(Base):
@@ -74,7 +74,7 @@ class PaymentEventRow(Base):
     amount_cents = Column(Float, nullable=True)
     currency = Column(String(3), default="USD")
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = Column(DateTime, default=lambda: datetime.utcnow(), index=True)
 
     __table_args__ = (
         Index("ix_payment_events_source_type", "source", "event_type"),

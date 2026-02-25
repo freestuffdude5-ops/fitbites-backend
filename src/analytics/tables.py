@@ -19,8 +19,8 @@ class AnalyticsEvent(Base):
     platform = Column(String(20), nullable=True)  # ios, android, web
     app_version = Column(String(20), nullable=True)
     properties = Column(JSON, default=dict)
-    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
-    received_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    timestamp = Column(DateTime, default=lambda: datetime.utcnow(), index=True)
+    received_at = Column(DateTime, default=lambda: datetime.utcnow())
 
     __table_args__ = (
         Index("ix_events_event_ts", "event", "timestamp"),
@@ -39,7 +39,7 @@ class RequestLog(Base):
     duration_ms = Column(Float, nullable=False)
     user_agent = Column(String(500), nullable=True)
     ip_hash = Column(String(16), nullable=True)
-    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    timestamp = Column(DateTime, default=lambda: datetime.utcnow(), index=True)
 
     __table_args__ = (
         Index("ix_reqlog_path_ts", "path", "timestamp"),

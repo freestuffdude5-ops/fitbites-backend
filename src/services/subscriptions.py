@@ -64,7 +64,7 @@ STRIPE_PRICE_TIER_MAP: dict[str, tuple[Tier, str]] = {}
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.utcnow()
 
 
 def _ms_to_dt(ms: int | str) -> datetime:

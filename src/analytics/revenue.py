@@ -154,7 +154,7 @@ async def revenue_summary(
     session: AsyncSession = Depends(get_session),
 ):
     """Comprehensive revenue summary with ARPU, LTV projections, and partner breakdown."""
-    since = datetime.now(timezone.utc) - timedelta(days=days)
+    since = datetime.utcnow() - timedelta(days=days)
 
     # Unique users in period
     unique_q = select(func.count(func.distinct(AnalyticsEvent.user_id))).where(
@@ -293,7 +293,7 @@ async def daily_revenue(
     session: AsyncSession = Depends(get_session),
 ):
     """Daily revenue time series for charting."""
-    since = datetime.now(timezone.utc) - timedelta(days=days)
+    since = datetime.utcnow() - timedelta(days=days)
 
     # Daily clicks
     clicks_q = text("""
@@ -332,7 +332,7 @@ async def daily_revenue(
     # Build daily series
     result = []
     for i in range(days):
-        day = (datetime.now(timezone.utc) - timedelta(days=days - 1 - i)).strftime("%Y-%m-%d")
+        day = (datetime.utcnow() - timedelta(days=days - 1 - i)).strftime("%Y-%m-%d")
         clicks = click_rows.get(day, 0)
         conversions, order_value = conv_rows.get(day, (0, 0))
         users = user_rows.get(day, 0)
@@ -363,7 +363,7 @@ async def financial_health(
     session: AsyncSession = Depends(get_session),
 ):
     """Financial health score (0-100) with actionable alerts."""
-    since = datetime.now(timezone.utc) - timedelta(days=days)
+    since = datetime.utcnow() - timedelta(days=days)
 
     # Gather key metrics
     unique_q = select(func.count(func.distinct(AnalyticsEvent.user_id))).where(
@@ -486,7 +486,7 @@ async def partner_breakdown(
     session: AsyncSession = Depends(get_session),
 ):
     """Per-partner revenue breakdown."""
-    since = datetime.now(timezone.utc) - timedelta(days=days)
+    since = datetime.utcnow() - timedelta(days=days)
 
     # Clicks by provider
     clicks_q = text("""

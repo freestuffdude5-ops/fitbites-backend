@@ -25,8 +25,8 @@ class RecipeReviewRow(Base):
     made_it = Column(Boolean, default=False)  # "I made this" badge
     photos = Column(JSON, default=list)  # URLs of user-submitted photos
     helpful_count = Column(Integer, default=0)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.utcnow())
+    updated_at = Column(DateTime, default=lambda: datetime.utcnow())
 
     __table_args__ = (
         UniqueConstraint("user_id", "recipe_id", name="uq_user_recipe_review"),
@@ -42,7 +42,7 @@ class CookingLogRow(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     recipe_id = Column(String(36), ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False, index=True)
-    cooked_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    cooked_at = Column(DateTime, default=lambda: datetime.utcnow())
     servings = Column(Float, default=1.0)
     notes = Column(Text, nullable=True)
     rating = Column(Integer, nullable=True)  # Quick rating after cooking
@@ -59,7 +59,7 @@ class ReviewHelpfulRow(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     review_id = Column(String(36), ForeignKey("recipe_reviews.id", ondelete="CASCADE"), nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.utcnow())
 
     __table_args__ = (
         UniqueConstraint("user_id", "review_id", name="uq_user_review_helpful"),

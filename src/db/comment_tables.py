@@ -20,7 +20,7 @@ class CommentRow(Base):
     parent_id = Column(String(36), ForeignKey("comments.id", ondelete="CASCADE"), nullable=True, index=True)
     text = Column(Text, nullable=False)
     like_count = Column(Integer, nullable=False, default=0)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.utcnow())
     updated_at = Column(DateTime, nullable=True)
     
     # Relationships
@@ -41,7 +41,7 @@ class CommentLikeRow(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     comment_id = Column(String(36), ForeignKey("comments.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.utcnow())
     
     __table_args__ = (
         UniqueConstraint("comment_id", "user_id", name="uq_comment_user_like"),

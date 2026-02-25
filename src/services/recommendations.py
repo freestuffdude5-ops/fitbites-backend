@@ -86,7 +86,7 @@ async def get_personalized_feed(
     candidates = (await session.execute(stmt)).scalars().all()
 
     # 4. Score and rank
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     scored: list[tuple[float, RecipeRow]] = []
 
     for recipe in candidates:
