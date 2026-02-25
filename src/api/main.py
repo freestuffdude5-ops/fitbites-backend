@@ -646,8 +646,14 @@ app.include_router(password_reset_router)
 from src.api.onboarding import router as onboarding_router
 app.include_router(onboarding_router)
 
+from src.api.reports import router as reports_router
+app.include_router(reports_router)
+
 from src.api.shopping_list import router as shopping_list_router
 app.include_router(shopping_list_router)
+
+from src.api.sharing import router as sharing_router
+app.include_router(sharing_router)
 
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 

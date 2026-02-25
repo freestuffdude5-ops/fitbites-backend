@@ -62,6 +62,7 @@ async def setup_db():
     import src.db.recently_viewed_tables  # noqa: F401
     import src.db.social_tables  # noqa: F401
     import src.db.collection_tables  # noqa: F401
+    import src.db.report_tables  # noqa: F401
     import src.db.subscription_tables  # noqa: F401
     from src.db.tables import RecipeRow
     from src.models import Platform
