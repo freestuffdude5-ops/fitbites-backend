@@ -57,6 +57,9 @@ class Settings:
     AMAZON_WEBHOOK_SECRET = os.getenv("AMAZON_WEBHOOK_SECRET", "")
     IMPACT_WEBHOOK_SECRET = os.getenv("IMPACT_WEBHOOK_SECRET", "")
 
+    # Admin API key (for protected admin endpoints like database seeding)
+    ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
+
     # CORS origins (comma-separated, or * for dev)
     CORS_ORIGINS = [
         o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",")

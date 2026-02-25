@@ -1,6 +1,7 @@
 """Comment database tables — casual social conversation on recipes."""
 from __future__ import annotations
 
+import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Index, UniqueConstraint
@@ -13,10 +14,10 @@ class CommentRow(Base):
     """User comment on a recipe."""
     __tablename__ = "comments"
     
-    id = Column(Integer, primary_key=True)
-    recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    parent_id = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"), nullable=True, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    recipe_id = Column(String(36), ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    parent_id = Column(String(36), ForeignKey("comments.id", ondelete="CASCADE"), nullable=True, index=True)
     text = Column(Text, nullable=False)
     like_count = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
@@ -37,9 +38,9 @@ class CommentLikeRow(Base):
     """User like on a comment."""
     __tablename__ = "comment_likes"
     
-    id = Column(Integer, primary_key=True)
-    comment_id = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    comment_id = Column(String(36), ForeignKey("comments.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     
     __table_args__ = (

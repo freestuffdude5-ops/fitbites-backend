@@ -22,7 +22,7 @@ router = APIRouter()
 class CommentCreate(BaseModel):
     """Request to post a comment."""
     text: str = Field(..., min_length=1, max_length=2000, description="Comment text")
-    parent_id: int | None = Field(None, description="Parent comment ID for replies")
+    parent_id: str | None = Field(None, description="Parent comment ID for replies")
 
 
 class CommentUpdate(BaseModel):
@@ -32,18 +32,18 @@ class CommentUpdate(BaseModel):
 
 class CommentAuthor(BaseModel):
     """Comment author info."""
-    id: int
+    id: str
     display_name: str
     avatar_url: str | None = None
 
 
 class CommentResponse(BaseModel):
     """Comment with metadata."""
-    id: int
+    id: str
     recipe_id: str
     author: CommentAuthor
     text: str
-    parent_id: int | None
+    parent_id: str | None
     reply_count: int
     like_count: int
     is_liked: bool
@@ -186,7 +186,7 @@ async def get_comments(
 
 @router.get("/api/v1/comments/{comment_id}/replies", response_model=CommentsListResponse)
 async def get_replies(
-    comment_id: int,
+    comment_id: str,
     offset: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
     user: UserRow | None = Depends(require_user),
@@ -252,7 +252,7 @@ async def get_replies(
 
 @router.patch("/api/v1/comments/{comment_id}", response_model=CommentResponse)
 async def update_comment(
-    comment_id: int,
+    comment_id: str,
     req: CommentUpdate,
     user: Annotated[UserRow, Depends(require_user)],
     session: AsyncSession = Depends(get_session),
@@ -305,7 +305,7 @@ async def update_comment(
 
 @router.delete("/api/v1/comments/{comment_id}", status_code=204)
 async def delete_comment(
-    comment_id: int,
+    comment_id: str,
     user: Annotated[UserRow, Depends(require_user)],
     session: AsyncSession = Depends(get_session),
 ):
@@ -330,7 +330,7 @@ async def delete_comment(
 
 @router.post("/api/v1/comments/{comment_id}/like", status_code=204)
 async def toggle_comment_like(
-    comment_id: int,
+    comment_id: str,
     user: Annotated[UserRow, Depends(require_user)],
     session: AsyncSession = Depends(get_session),
 ):

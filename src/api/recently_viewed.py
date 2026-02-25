@@ -22,7 +22,7 @@ router = APIRouter()
 
 class RecipePreview(BaseModel):
     """Recipe preview for history list."""
-    id: int
+    id: str
     title: str
     image_url: str | None
     calories: int | None
