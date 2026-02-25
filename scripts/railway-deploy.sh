@@ -33,7 +33,7 @@ fi
 echo "🗄️  Checking for PostgreSQL database..."
 if ! railway variables | grep -q "DATABASE_URL"; then
     echo "Adding PostgreSQL database..."
-    railway add --database postgresql
+    railway add --database postgres
     echo "✅ PostgreSQL added"
 else
     echo "✅ PostgreSQL already configured"
