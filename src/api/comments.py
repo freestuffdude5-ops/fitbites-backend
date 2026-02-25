@@ -40,7 +40,7 @@ class CommentAuthor(BaseModel):
 class CommentResponse(BaseModel):
     """Comment with metadata."""
     id: int
-    recipe_id: int
+    recipe_id: str
     author: CommentAuthor
     text: str
     parent_id: int | None
@@ -61,7 +61,7 @@ class CommentsListResponse(BaseModel):
 
 @router.post("/api/v1/recipes/{recipe_id}/comments", response_model=CommentResponse)
 async def post_comment(
-    recipe_id: int,
+    recipe_id: str,
     req: CommentCreate,
     user: Annotated[UserRow, Depends(require_user)],
     session: AsyncSession = Depends(get_session),
@@ -106,7 +106,7 @@ async def post_comment(
 
 @router.get("/api/v1/recipes/{recipe_id}/comments", response_model=CommentsListResponse)
 async def get_comments(
-    recipe_id: int,
+    recipe_id: str,
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     sort: str = Query("newest", pattern="^(newest|oldest|top)$"),

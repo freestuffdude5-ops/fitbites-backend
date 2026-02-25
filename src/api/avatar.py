@@ -34,7 +34,7 @@ class AvatarUploadResponse(BaseModel):
 
 @router.post("/api/v1/users/{user_id}/avatar", response_model=AvatarUploadResponse)
 async def upload_avatar(
-    user_id: int,
+    user_id: str,
     user: Annotated[UserRow, Depends(require_user)],
     session: AsyncSession = Depends(get_session),
     file: UploadFile = File(...),
@@ -87,7 +87,7 @@ async def upload_avatar(
 
 @router.delete("/api/v1/users/{user_id}/avatar", status_code=204)
 async def delete_avatar(
-    user_id: int,
+    user_id: str,
     user: Annotated[UserRow, Depends(require_user)],
     session: AsyncSession = Depends(get_session),
 ):

@@ -40,7 +40,7 @@ class RecentlyViewedResponse(BaseModel):
 
 @router.post("/api/v1/recipes/{recipe_id}/view", status_code=204)
 async def track_view(
-    recipe_id: int,
+    recipe_id: str,
     user: Annotated[UserRow, Depends(require_user)],
     session: AsyncSession = Depends(get_session),
 ):
@@ -74,7 +74,7 @@ async def track_view(
 
 @router.get("/api/v1/users/{user_id}/recently-viewed", response_model=RecentlyViewedResponse)
 async def get_recently_viewed(
-    user_id: int,
+    user_id: str,
     user: Annotated[UserRow, Depends(require_user)],
     session: AsyncSession = Depends(get_session),
     limit: int = Query(20, ge=1, le=100),
@@ -115,7 +115,7 @@ async def get_recently_viewed(
 
 @router.delete("/api/v1/users/{user_id}/recently-viewed", status_code=204)
 async def clear_history(
-    user_id: int,
+    user_id: str,
     user: Annotated[UserRow, Depends(require_user)],
     session: AsyncSession = Depends(get_session),
 ):

@@ -611,6 +611,9 @@ app.include_router(recently_viewed_router)
 from src.api.avatar import router as avatar_router
 app.include_router(avatar_router)
 
+from src.api.affiliate_webhooks import router as affiliate_webhooks_router
+app.include_router(affiliate_webhooks_router)
+
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 
 @app.post("/api/v1/affiliate-links/tracked")

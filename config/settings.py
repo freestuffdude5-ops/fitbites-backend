@@ -52,6 +52,11 @@ class Settings:
         "fitbites-dev-affiliate-key-change-in-prod"
     )
 
+    # Affiliate webhook secrets (for conversion tracking)
+    AFFILIATE_WEBHOOK_SECRET = os.getenv("AFFILIATE_WEBHOOK_SECRET", "")
+    AMAZON_WEBHOOK_SECRET = os.getenv("AMAZON_WEBHOOK_SECRET", "")
+    IMPACT_WEBHOOK_SECRET = os.getenv("IMPACT_WEBHOOK_SECRET", "")
+
     # CORS origins (comma-separated, or * for dev)
     CORS_ORIGINS = [
         o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",")
