@@ -24,10 +24,12 @@ from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urlencode
 
+from config.settings import settings
+
 logger = logging.getLogger(__name__)
 
 # HMAC key for signing link IDs (prevents enumeration/tampering)
-_SIGNING_KEY = b"fitbites-affiliate-2026"  # TODO: move to env var
+_SIGNING_KEY = settings.AFFILIATE_SIGNING_KEY.encode()
 
 
 @dataclass(frozen=True)

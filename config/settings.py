@@ -46,6 +46,12 @@ class Settings:
     # Apple IAP
     APPLE_SHARED_SECRET = os.getenv("APPLE_SHARED_SECRET", "")
 
+    # Affiliate link signing (for tamper-proof redirect links)
+    AFFILIATE_SIGNING_KEY = os.getenv(
+        "AFFILIATE_SIGNING_KEY",
+        "fitbites-dev-affiliate-key-change-in-prod"
+    )
+
     # CORS origins (comma-separated, or * for dev)
     CORS_ORIGINS = [
         o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",")
