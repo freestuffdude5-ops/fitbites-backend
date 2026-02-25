@@ -112,6 +112,24 @@ async def require_user(user: Optional[UserRow] = Depends(get_current_user)) -> U
     return user
 
 
+async def require_admin(user: UserRow = Depends(require_user)) -> UserRow:
+    """Require authenticated user with admin role.
+    
+    Checks user.preferences for {"role": "admin"} or user.email in admin list.
+    """
+    is_admin = False
+    prefs = user.preferences or {}
+    if prefs.get("role") == "admin":
+        is_admin = True
+    # Also allow configured admin emails
+    admin_emails = getattr(settings, "ADMIN_EMAILS", "").split(",")
+    if user.email in [e.strip() for e in admin_emails if e.strip()]:
+        is_admin = True
+    if not is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+    return user
+
+
 # ---- Request/Response models ----
 
 def refresh_access_token(refresh_token: str) -> Optional[dict]:

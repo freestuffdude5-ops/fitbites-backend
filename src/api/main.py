@@ -605,6 +605,10 @@ app.include_router(privacy_router)
 from src.services.data_retention import router as retention_router
 app.include_router(retention_router)
 
+# --- Revenue Alerts: Financial health monitoring (FINN) ---
+from src.services.revenue_alerts import router as alerts_router
+app.include_router(alerts_router)
+
 # --- User routes (favorites, grocery lists) ---
 from src.api.users import router as users_router
 app.include_router(users_router)
