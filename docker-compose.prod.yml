@@ -1,0 +1,82 @@
+# FitBites Production Stack
+# Usage: docker compose -f docker-compose.prod.yml up -d --build
+
+services:
+  api:
+    build: .
+    ports:
+      - "${API_PORT:-8000}:8000"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://fitbites:${POSTGRES_PASSWORD}@db:5432/fitbites
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - app-data:/app/data
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; assert httpx.get('http://localhost:8000/health').status_code == 200"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - fitbites
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: fitbites
+      POSTGRES_USER: fitbites
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fitbites"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fitbites
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
+    expose:
+      - "6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - redisdata:/data
+    networks:
+      - fitbites
+
+networks:
+  fitbites:
+    driver: bridge
+
+volumes:
+  pgdata:
+  app-data:
+  redisdata:

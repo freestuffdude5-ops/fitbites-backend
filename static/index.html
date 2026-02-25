@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>FitBites — Healthy Viral Recipes</title>
+    <meta name="description" content="Discover the most viral healthy recipes from Reddit and YouTube. High protein, low calorie meals with one-tap ingredient shopping.">
+    <meta name="theme-color" content="#16a34a">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --green: #16a34a;
+            --green-light: #dcfce7;
+            --bg: #fafafa;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+            --radius: 16px;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0a0a0a;
+                --card: #1a1a1a;
+                --text: #f5f5f5;
+                --text-secondary: #9ca3af;
+                --border: #2a2a2a;
+                --green-light: #064e3b;
+            }
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+
+        /* Header */
+        header {
+            position: sticky; top: 0; z-index: 50;
+            background: var(--bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+        }
+        header .container { display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-size: 24px; font-weight: 800; }
+        .logo span { color: var(--green); }
+
+        /* Tabs */
+        .tabs {
+            display: flex; gap: 4px; padding: 4px;
+            background: var(--card); border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .tab {
+            padding: 8px 16px; border-radius: 8px;
+            font-size: 13px; font-weight: 600;
+            background: none; border: none; color: var(--text-secondary);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .tab.active { background: var(--green); color: white; }
+        .tab:hover:not(.active) { background: var(--green-light); color: var(--green); }
+
+        /* Search */
+        .search-bar {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 10px 16px; margin: 16px 0;
+            transition: border-color 0.2s;
+        }
+        .search-bar:focus-within { border-color: var(--green); }
+        .search-bar input {
+            flex: 1; border: none; outline: none; font-size: 15px;
+            background: none; color: var(--text); font-family: inherit;
+        }
+        .search-bar svg { color: var(--text-secondary); flex-shrink: 0; }
+
+        /* Recipe Cards */
+        .recipes { display: flex; flex-direction: column; gap: 16px; padding: 8px 0 100px; }
+        .recipe-card {
+            background: var(--card); border-radius: var(--radius);
+            box-shadow: var(--shadow); overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; border: 1px solid var(--border);
+        }
+        .recipe-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .recipe-card:active { transform: scale(0.98); }
+        .card-image {
+            width: 100%; height: 200px; object-fit: cover;
+            background: linear-gradient(135deg, var(--green-light), #e0f2fe);
+        }
+        .card-image.placeholder {
+            display: flex; align-items: center; justify-content: center;
+            font-size: 48px;
+        }
+        .card-body { padding: 16px; }
+        .card-title { font-size: 17px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+        .card-creator { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
+        .card-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+        .stat {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 12px; font-weight: 600;
+        }
+        .stat.cal { color: #ea580c; }
+        .stat.protein { color: var(--green); }
+        .stat.time { color: #2563eb; }
+        .stat.engagement { color: var(--text-secondary); }
+        .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+        .tag {
+            font-size: 11px; font-weight: 600;
+            padding: 3px 8px; border-radius: 20px;
+            background: var(--green-light); color: var(--green);
+        }
+        .platform-badge {
+            position: absolute; top: 12px; right: 12px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
+            background: rgba(0,0,0,0.6); color: white;
+            backdrop-filter: blur(8px);
+        }
+        .card-image-wrapper { position: relative; }
+
+        /* Loading skeleton */
+        .skeleton { background: linear-gradient(90deg, var(--border) 25%, var(--card) 50%, var(--border) 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .skeleton-card .card-image { height: 200px; }
+        .skeleton-card .skeleton-title { height: 20px; width: 80%; margin: 16px; }
+        .skeleton-card .skeleton-subtitle { height: 14px; width: 50%; margin: 0 16px; }
+        .skeleton-card .skeleton-stats { height: 14px; width: 60%; margin: 12px 16px 16px; }
+
+        /* Empty state */
+        .empty { text-align: center; padding: 60px 20px; }
+        .empty-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.4; }
+        .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+        .empty-subtitle { font-size: 14px; color: var(--text-secondary); }
+
+        /* Detail modal */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(0,0,0,0.5);
+            display: none; align-items: flex-end; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--card); border-radius: 24px 24px 0 0;
+            width: 100%; max-width: 640px; max-height: 90vh;
+            overflow-y: auto; animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto; }
+        .modal-content { padding: 0 20px 40px; }
+        .modal-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        .modal-section { margin-top: 20px; }
+        .modal-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--green); }
+        .ingredient-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+        }
+        .ingredient-name { font-size: 14px; }
+        .ingredient-qty { font-size: 13px; color: var(--text-secondary); }
+        .buy-btn {
+            font-size: 11px; font-weight: 600; padding: 4px 10px;
+            background: #ff9900; color: white; border: none; border-radius: 6px;
+            cursor: pointer; text-decoration: none;
+        }
+        .step-item { display: flex; gap: 12px; padding: 12px 0; }
+        .step-number {
+            width: 28px; height: 28px; flex-shrink: 0;
+            background: var(--green); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
+        }
+        .step-text { font-size: 14px; line-height: 1.6; }
+        .source-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: var(--green); text-decoration: none; font-weight: 600; font-size: 14px;
+            margin-top: 16px;
+        }
+        .macro-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+        .macro-segment { transition: width 0.5s; }
+
+        /* Bottom nav */
+        nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--card); border-top: 1px solid var(--border);
+            padding: 8px 0 env(safe-area-inset-bottom, 8px);
+            display: flex; justify-content: center;
+        }
+        nav .container { display: flex; justify-content: space-around; width: 100%; }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            font-size: 10px; font-weight: 600; color: var(--text-secondary);
+            background: none; border: none; cursor: pointer; padding: 4px 12px;
+        }
+        .nav-item.active { color: var(--green); }
+        .nav-item svg { width: 24px; height: 24px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">Fit<span>Bites</span> 🔥</div>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('trending')">Trending</button>
+                <button class="tab" onclick="switchTab('search')">Search</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="search-section" style="display:none">
+            <div class="search-bar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="search-input" placeholder="Search healthy recipes..." oninput="debounceSearch()">
+            </div>
+        </div>
+        <div id="recipes" class="recipes"></div>
+    </main>
+
+    <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div class="modal-content" id="modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+    const API = window.location.origin;
+    let currentTab = 'trending';
+    let searchTimeout;
+
+    async function fetchRecipes(endpoint) {
+        showSkeletons();
+        try {
+            const res = await fetch(`${API}${endpoint}`);
+            const data = await res.json();
+            renderRecipes(data.data || []);
+        } catch(e) {
+            document.getElementById('recipes').innerHTML =
+                '<div class="empty"><div class="empty-icon">📡</div><div class="empty-title">Connection Error</div><div class="empty-subtitle">Make sure the API server is running</div></div>';
+        }
+    }
+
+    function showSkeletons() {
+        const el = document.getElementById('recipes');
+        el.innerHTML = Array(4).fill('').map(() => `
+            <div class="recipe-card skeleton-card">
+                <div class="card-image skeleton"></div>
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-subtitle"></div>
+                <div class="skeleton skeleton-stats"></div>
+            </div>
+        `).join('');
+    }
+
+    function renderRecipes(recipes) {
+        const el = document.getElementById('recipes');
+        if (!recipes.length) {
+            el.innerHTML = '<div class="empty"><div class="empty-icon">🥗</div><div class="empty-title">No Recipes Found</div><div class="empty-subtitle">Try a different search or check back later</div></div>';
+            return;
+        }
+        el.innerHTML = recipes.map(r => {
+            const cal = r.nutrition?.calories;
+            const protein = r.nutrition?.protein_g;
+            const creator = r.creator?.display_name || r.creator?.username || 'Unknown';
+            const tags = (r.tags || []).slice(0, 3);
+            const img = r.thumbnail_url?.startsWith('http') ? `<img class="card-image" src="${r.thumbnail_url}" alt="${r.title}" loading="lazy" onerror="this.outerHTML='<div class=\\'card-image placeholder\\'>🍽️</div>'">` : '<div class="card-image placeholder">🍽️</div>';
+
+            return `
+            <div class="recipe-card" onclick='showDetail(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
+                <div class="card-image-wrapper">
+                    ${img}
+                    <div class="platform-badge">${r.platform}</div>
+                </div>
+                <div class="card-body">
+                    <div class="card-title">${r.title}</div>
+                    <div class="card-creator">by ${creator}</div>
+                    <div class="card-stats">
+                        ${cal ? `<span class="stat cal">🔥 ${cal} cal</span>` : ''}
+                        ${protein ? `<span class="stat protein">💪 ${Math.round(protein)}g protein</span>` : ''}
+                        ${r.cook_time_minutes ? `<span class="stat time">⏱️ ${r.cook_time_minutes} min</span>` : ''}
+                        <span class="stat engagement">👍 ${r.likes || 0} · 💬 ${r.comments || 0}</span>
+                    </div>
+                    ${tags.length ? `<div class="tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function showDetail(recipe) {
+        const c = document.getElementById('modal-content');
+        const n = recipe.nutrition;
+        const ingredients = recipe.ingredients || [];
+        const steps = recipe.steps || [];
+        const creator = recipe.creator?.display_name || recipe.creator?.username || 'Unknown';
+
+        let macroBar = '';
+        if (n && (n.protein_g || n.carbs_g || n.fat_g)) {
+            const total = (n.protein_g||0)*4 + (n.carbs_g||0)*4 + (n.fat_g||0)*9;
+            if (total > 0) {
+                const p = ((n.protein_g||0)*4/total*100).toFixed(0);
+                const cb = ((n.carbs_g||0)*4/total*100).toFixed(0);
+                const f = 100-p-cb;
+                macroBar = `<div class="macro-bar"><div class="macro-segment" style="width:${p}%;background:#16a34a"></div><div class="macro-segment" style="width:${cb}%;background:#2563eb"></div><div class="macro-segment" style="width:${f}%;background:#ea580c"></div></div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-top:4px"><span style="color:#16a34a">Protein ${p}%</span><span style="color:#2563eb">Carbs ${cb}%</span><span style="color:#ea580c">Fat ${f}%</span></div>`;
+            }
+        }
+
+        c.innerHTML = `
+            <h2 class="modal-title">${recipe.title}</h2>
+            <div class="card-creator">by ${creator} · ${recipe.platform}</div>
+            ${recipe.description ? `<p style="font-size:14px;color:var(--text-secondary);margin-top:8px">${recipe.description.slice(0,200)}${recipe.description.length>200?'...':''}</p>` : ''}
+
+            ${n ? `
+            <div class="modal-section">
+                <h3>Nutrition per serving</h3>
+                <div class="card-stats">
+                    <span class="stat cal">🔥 ${n.calories} cal</span>
+                    <span class="stat protein">💪 ${n.protein_g}g protein</span>
+                    <span class="stat" style="color:#2563eb">🥖 ${n.carbs_g}g carbs</span>
+                    <span class="stat" style="color:#ea580c">🧈 ${n.fat_g}g fat</span>
+                </div>
+                ${macroBar}
+            </div>` : ''}
+
+            ${ingredients.length ? `
+            <div class="modal-section">
+                <h3>Ingredients (${ingredients.length})</h3>
+                ${ingredients.map(i => `
+                    <div class="ingredient-item">
+                        <div>
+                            <span class="ingredient-name">${i.name}</span>
+                            ${i.quantity ? `<span class="ingredient-qty"> · ${i.quantity}</span>` : ''}
+                        </div>
+                        ${i.affiliate_url ? `<a class="buy-btn" href="${i.affiliate_url}" target="_blank" rel="noopener">Buy</a>` : ''}
+                    </div>
+                `).join('')}
+            </div>` : ''}
+
+            ${steps.length ? `
+            <div class="modal-section">
+                <h3>Steps</h3>
+                ${steps.map((s,i) => `<div class="step-item"><div class="step-number">${i+1}</div><div class="step-text">${s}</div></div>`).join('')}
+            </div>` : ''}
+
+            ${recipe.source_url ? `<a class="source-link" href="${recipe.source_url}" target="_blank" rel="noopener">View original on ${recipe.platform} →</a>` : ''}
+        `;
+        document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('search-section').style.display = tab === 'search' ? 'block' : 'none';
+
+        if (tab === 'trending') fetchRecipes('/api/v1/trending?limit=20');
+        else { document.getElementById('recipes').innerHTML = ''; document.getElementById('search-input').focus(); }
+    }
+
+    function debounceSearch() {
+        clearTimeout(searchTimeout);
+        const q = document.getElementById('search-input').value;
+        if (q.length < 2) { document.getElementById('recipes').innerHTML = ''; return; }
+        searchTimeout = setTimeout(() => fetchRecipes(`/api/v1/recipes/search?q=${encodeURIComponent(q)}&limit=20`), 300);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+        if (e.key === '/' && !e.target.matches('input')) { e.preventDefault(); switchTab('search'); }
+    });
+
+    // Load trending on start
+    fetchRecipes('/api/v1/trending?limit=20');
+    </script>
+</body>
+</html>
