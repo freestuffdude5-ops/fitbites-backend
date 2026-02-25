@@ -2,9 +2,9 @@ name: FitBites CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, master, develop]
   pull_request:
-    branches: [main]
+    branches: [main, master]
 
 jobs:
   test:
@@ -23,7 +23,7 @@ jobs:
           pip install -e ".[dev]" 2>/dev/null || \
             pip install fastapi uvicorn pydantic[email] sqlalchemy aiosqlite \
               anthropic httpx python-dotenv apscheduler python-multipart \
-              pytest pytest-asyncio email-validator bcrypt pyjwt passlib
+              pytest pytest-asyncio email-validator bcrypt pyjwt passlib sentry-sdk[fastapi]
 
       - name: Run tests
         run: python -m pytest tests/ -v --tb=short

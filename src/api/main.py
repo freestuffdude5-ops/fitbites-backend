@@ -20,11 +20,42 @@ from src.db.repository import RecipeRepository
 from src.services.pipeline import ScraperPipeline
 from src.services.scheduler import start_scheduler, stop_scheduler
 from src.services.affiliate import enrich_ingredients, enrich_recipe, get_shop_all_url, generate_click_id
+from src.services.affiliate_compliance import (
+    generate_compliance_metadata,
+    inject_compliance_into_response,
+    generate_disclosure_page_html,
+    DisclosureLevel,
+)
 from src.services.affiliate_redirect import (
     create_tracked_links_for_recipe, store_links, lookup_link,
     record_click, get_click_stats, cleanup_expired,
 )
 from config.settings import settings
+
+# ── Sentry Error Tracking ────────────────────────
+if settings.SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.fastapi import FastApiIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        environment=settings.SENTRY_ENVIRONMENT,
+        traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
+        profiles_sample_rate=0.1,  # Profile 10% of transactions
+        integrations=[
+            FastApiIntegration(),
+            SqlalchemyIntegration(),
+            LoggingIntegration(level=logging.WARNING, event_level=logging.ERROR),
+        ],
+        # Scrub sensitive data
+        send_default_pii=False,
+        before_send=lambda event, hint: (
+            {**event, "request": {**event.get("request", {}), "cookies": None}}
+            if "request" in event else event
+        ),
+    )
 
 
 def _build_pipeline() -> ScraperPipeline:
@@ -57,6 +88,8 @@ async def lifespan(app: FastAPI):
     import src.db.review_tables  # noqa: F401
     import src.db.subscription_tables  # noqa: F401
     import src.db.social_tables  # noqa: F401
+    import src.db.comment_tables  # noqa: F401
+    import src.db.recently_viewed_tables  # noqa: F401
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database tables ready")
@@ -440,8 +473,20 @@ async def get_affiliate_links(ingredients: list[str]):
 
     Returns links from Amazon, iHerb, Instacart, and Thrive Market,
     sorted by commission rate (highest first).
+    
+    Includes FTC-compliant affiliate disclosure metadata.
     """
-    return enrich_ingredients(ingredients)
+    enriched = enrich_ingredients(ingredients)
+    # Extract provider list for compliance
+    providers = set()
+    for item in enriched:
+        for link in item.get("all_links", []):
+            providers.add(link.get("provider", ""))
+    providers.discard("")
+    
+    # Wrap in dict for compliance injection
+    response = {"ingredients": enriched}
+    return inject_compliance_into_response(response, list(providers))
 
 
 @app.post("/api/v1/affiliate-links/shop-all")
@@ -557,6 +602,15 @@ app.include_router(social_router)
 from src.api.search import router as search_router
 app.include_router(search_router)
 
+from src.api.comments import router as comments_router
+app.include_router(comments_router)
+
+from src.api.recently_viewed import router as recently_viewed_router
+app.include_router(recently_viewed_router)
+
+from src.api.avatar import router as avatar_router
+app.include_router(avatar_router)
+
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 
 @app.post("/api/v1/affiliate-links/tracked")
@@ -591,7 +645,16 @@ async def get_tracked_affiliate_links(
             lid = _generate_link_id(recipe_id, normalized, pl["provider"])
             pl["tracked_url"] = f"{base_url}/go/{lid}"
 
-    return enriched
+    # Extract provider list for FTC compliance
+    providers = set()
+    for item in enriched:
+        for link in item.get("all_links", []):
+            providers.add(link.get("provider", ""))
+    providers.discard("")
+    
+    # Wrap in dict for compliance injection
+    response = {"ingredients": enriched, "recipe_id": recipe_id}
+    return inject_compliance_into_response(response, list(providers))
 
 
 from fastapi.responses import RedirectResponse
@@ -688,6 +751,17 @@ async def readiness(session: AsyncSession = Depends(get_session)):
     except Exception:
         return JSONResponse(status_code=503, content={"ready": False, "reason": "database unavailable"})
     return {"ready": True}
+
+
+@app.get("/legal/affiliate-disclosure")
+async def affiliate_disclosure():
+    """FTC-compliant affiliate disclosure page.
+    
+    Required by FTC 16 CFR Part 255 for all affiliate link monetization.
+    """
+    from fastapi.responses import HTMLResponse
+    html = generate_disclosure_page_html()
+    return HTMLResponse(content=html, status_code=200)
 
 
 # --- Structured Error Responses ---

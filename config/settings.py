@@ -61,5 +61,14 @@ class Settings:
     SCRAPE_INTERVAL_HOURS = int(os.getenv("SCRAPE_INTERVAL_HOURS", "6"))
     RECIPES_PER_PLATFORM = int(os.getenv("RECIPES_PER_PLATFORM", "20"))
 
+    # Observability
+    SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+    SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT", "development")
+    SENTRY_TRACES_SAMPLE_RATE = float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1"))
+
+    # Logging
+    LOG_FORMAT = os.getenv("LOG_FORMAT", "text")  # "text" or "json"
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+
 
 settings = Settings()

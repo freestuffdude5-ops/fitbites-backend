@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -e ".[dev]" 2>/dev/null || \
     pip install --no-cache-dir \
         fastapi uvicorn[standard] pydantic[email] sqlalchemy aiosqlite asyncpg psycopg2-binary \
-        anthropic httpx python-dotenv apscheduler python-multipart
+        anthropic httpx python-dotenv apscheduler python-multipart sentry-sdk[fastapi]
 
 # Copy application code
 COPY . .
