@@ -601,6 +601,10 @@ app.include_router(google_play_router)
 from src.services.data_privacy import router as privacy_router
 app.include_router(privacy_router)
 
+# --- Data Retention: Automated lifecycle management (FINN) ---
+from src.services.data_retention import router as retention_router
+app.include_router(retention_router)
+
 # --- User routes (favorites, grocery lists) ---
 from src.api.users import router as users_router
 app.include_router(users_router)
@@ -762,6 +766,59 @@ async def affiliate_revenue_dashboard(
         "window_hours": hours,
         **stats.to_dict(),
     }
+
+
+# ── Recipe Cost Estimation ────────────────────────────────────────────────────
+from src.services.recipe_cost import estimate_recipe_cost, estimate_meal_plan_cost
+
+
+class CostEstimateRequest(BaseModel):
+    ingredients: list[str]
+    servings: int = 4
+
+
+class MealPlanCostRequest(BaseModel):
+    recipes: list[dict]
+
+
+@app.post("/api/v1/recipes/cost-estimate")
+async def recipe_cost_estimate(req: CostEstimateRequest):
+    """Estimate the cost of a recipe from its ingredients.
+
+    Returns per-ingredient costs, total, per-serving, and budget-friendly flag.
+    Premium feature — shows users exactly what they'll spend.
+    """
+    cost = estimate_recipe_cost(req.ingredients, req.servings)
+    return cost.to_dict()
+
+
+@app.get("/api/v1/recipes/{recipe_id}/cost")
+async def recipe_cost_by_id(
+    recipe_id: str,
+    session: AsyncSession = Depends(get_session),
+):
+    """Get cost estimate for a stored recipe by ID."""
+    repo = RecipeRepository(session)
+    recipe = await repo.get(recipe_id)
+    if not recipe:
+        raise HTTPException(404, "Recipe not found")
+    ingredients = recipe.get("ingredients", [])
+    servings = recipe.get("servings", 4)
+    cost = estimate_recipe_cost(ingredients, servings)
+    return {
+        "recipe_id": recipe_id,
+        "title": recipe.get("title", ""),
+        **cost.to_dict(),
+    }
+
+
+@app.post("/api/v1/meal-plan/cost")
+async def meal_plan_cost(req: MealPlanCostRequest):
+    """Estimate total cost for a weekly meal plan.
+
+    Accepts a list of recipes and returns aggregate cost with savings tips.
+    """
+    return estimate_meal_plan_cost(req.recipes)
 
 
 # --- Static files (web frontend) ---
