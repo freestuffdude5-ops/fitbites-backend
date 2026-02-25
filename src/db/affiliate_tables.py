@@ -1,7 +1,7 @@
 """
 Database tables for affiliate click tracking and conversion attribution.
 """
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, Index
 from sqlalchemy.orm import relationship
@@ -19,7 +19,7 @@ class AffiliateClickRow(Base):
     user_agent = Column(String(500), nullable=True)
     ip_address = Column(String(45), nullable=True)  # IPv6 support
     referer = Column(String(1000), nullable=True)
-    clicked_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    clicked_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     
     # Relationships
     conversions = relationship("AffiliateConversionRow", back_populates="click")
@@ -41,7 +41,7 @@ class AffiliateConversionRow(Base):
     revenue = Column(Float, nullable=False)  # Total order value (USD)
     commission = Column(Float, nullable=False)  # Our cut (USD)
     purchased_at = Column(DateTime, nullable=False, index=True)
-    recorded_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    recorded_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     
     # Attribution
     click_id = Column(Integer, ForeignKey("affiliate_clicks.id"), nullable=True)  # NULL if unattributed
