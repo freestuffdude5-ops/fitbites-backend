@@ -52,7 +52,7 @@ async def seed_database(
     spec.loader.exec_module(seed_module)
     
     # Run seeding
-    await seed_module.seed_database()
+    await seed_module.seed()
     
     # Count new recipes
     result = await session.execute(select(func.count(RecipeRow.id)))

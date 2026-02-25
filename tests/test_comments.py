@@ -49,7 +49,7 @@ async def test_post_comment_invalid_parent(async_client: AsyncClient, auth_heade
     """Replying to non-existent comment returns 404."""
     response = await async_client.post(
         f"/api/v1/recipes/{test_recipe['id']}/comments",
-        json={"text": "Reply", "parent_id": 999999},
+        json={"text": "Reply", "parent_id": "00000000-0000-0000-0000-000000000000"},
         headers=auth_headers,
     )
     assert response.status_code == 404

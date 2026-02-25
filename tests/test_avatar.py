@@ -84,8 +84,8 @@ async def test_upload_avatar_replaces_old(async_client: AsyncClient, auth_header
     """Uploading new avatar deletes old one."""
     user_id = auth_headers["user_id"]
     
-    png_data = b"\x89PNG\r\n\x1a\n"
-    files = {"file": ("avatar.png", io.BytesIO(png_data), "image/png")}
+    png_data1 = b"\x89PNG\r\n\x1a\n\x00\x01"
+    files = {"file": ("avatar.png", io.BytesIO(png_data1), "image/png")}
     
     # Upload first avatar
     resp1 = await async_client.post(
@@ -95,8 +95,9 @@ async def test_upload_avatar_replaces_old(async_client: AsyncClient, auth_header
     )
     first_url = resp1.json()["avatar_url"]
     
-    # Upload second avatar
-    files2 = {"file": ("avatar2.png", io.BytesIO(png_data), "image/png")}
+    # Upload second avatar with different content
+    png_data2 = b"\x89PNG\r\n\x1a\n\x00\x02"
+    files2 = {"file": ("avatar2.png", io.BytesIO(png_data2), "image/png")}
     resp2 = await async_client.post(
         f"/api/v1/users/{user_id}/avatar",
         files=files2,

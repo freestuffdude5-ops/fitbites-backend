@@ -100,9 +100,9 @@ async def get_recently_viewed(
         RecipePreview(
             id=recipe.id,
             title=recipe.title,
-            image_url=recipe.image_url,
-            calories=recipe.nutrition.get("calories") if recipe.nutrition else None,
-            protein_g=recipe.nutrition.get("protein_g") if recipe.nutrition else None,
+            image_url=recipe.thumbnail_url,
+            calories=recipe.calories,
+            protein_g=recipe.protein_g,
             cook_time_minutes=recipe.cook_time_minutes,
             platform=recipe.platform,
             viewed_at=view.viewed_at,
