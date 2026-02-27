@@ -1,6 +1,7 @@
 """Recipe repository — DB CRUD operations + Pydantic conversion."""
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -57,7 +58,7 @@ def _row_to_recipe(row: RecipeRow) -> Recipe:
         cook_time_minutes=row.cook_time_minutes,
         difficulty=row.difficulty,
         virality_score=row.virality_score,
-        scraped_at=row.scraped_at,
+        scraped_at=row.scraped_at or datetime.now(tz=timezone.utc),
         published_at=row.published_at,
     )
 
