@@ -1,17 +1,23 @@
 FROM python:3.12-slim AS base
 
-# Cache bust: 2026-02-24 22:09 - psycopg2-binary fix
+# Cache bust: 2026-02-27 13:30 - YouTube v2.1 ffmpeg support
 # Security: don't run as root
 RUN groupadd -r fitbites && useradd -r -g fitbites -d /app fitbites
+
+# Install ffmpeg and yt-dlp for YouTube recipe extraction
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Copy application code
 COPY . .
 
-# Install deps
+# Install Python deps + yt-dlp
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir ".[dev]"
+    pip install --no-cache-dir ".[dev]" && \
+    pip install --no-cache-dir yt-dlp
 
 # Create data directory for SQLite
 RUN mkdir -p /app/data && chown -R fitbites:fitbites /app
