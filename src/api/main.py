@@ -105,6 +105,7 @@ async def lifespan(app: FastAPI):
     import src.db.social_tables  # noqa: F401
     import src.db.comment_tables  # noqa: F401
     import src.db.recently_viewed_tables  # noqa: F401
+    import src.db.tracking_tables  # noqa: F401
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database tables ready")
@@ -472,6 +473,11 @@ async def search_recipes(
     }
 
 
+# --- Recipe Integration & Daily Tracking (BYTE) --- must be before {recipe_id} catch-all
+from src.api.recipe_tracking import router as recipe_tracking_router
+app.include_router(recipe_tracking_router)
+
+
 @app.get("/api/v1/recipes/{recipe_id}", response_model=Recipe)
 async def get_recipe(recipe_id: str, session: AsyncSession = Depends(get_session)):
     """Get a single recipe by ID."""
@@ -670,6 +676,13 @@ app.include_router(shopping_list_router)
 
 from src.api.sharing import router as sharing_router
 app.include_router(sharing_router)
+
+# --- Food Search & Quick-Log (ALEX) ---
+from src.api.food import router as food_router
+app.include_router(food_router)
+
+from src.api.barcode import router as barcode_router
+app.include_router(barcode_router)
 
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 
@@ -903,6 +916,9 @@ async def validation_error_handler(request: FastAPIRequest, exc: RequestValidati
         "details": errors,
     })
 
+
+from src.api.tracking import router as tracking_router
+app.include_router(tracking_router)
 
 @app.exception_handler(HTTPException)
 async def http_error_handler(request: FastAPIRequest, exc: HTTPException):

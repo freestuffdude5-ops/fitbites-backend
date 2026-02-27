@@ -60,6 +60,7 @@ async def setup_db():
     import src.db.review_tables  # noqa: F401
     import src.db.comment_tables  # noqa: F401
     import src.db.recently_viewed_tables  # noqa: F401
+    import src.db.tracking_tables  # noqa: F401
     import src.db.social_tables  # noqa: F401
     import src.db.collection_tables  # noqa: F401
     import src.db.report_tables  # noqa: F401

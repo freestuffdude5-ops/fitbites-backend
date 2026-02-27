@@ -15,6 +15,7 @@ from src.db.tables import Base, RecipeRow  # noqa: F401
 from src.db.user_tables import UserRow, SavedRecipeRow, GroceryListRow  # noqa: F401
 from src.db.meal_plan_tables import MealPlanRow, MealPlanEntryRow  # noqa: F401
 import src.analytics.tables  # noqa: F401
+import src.db.tracking_tables  # noqa: F401
 
 config = context.config
 
