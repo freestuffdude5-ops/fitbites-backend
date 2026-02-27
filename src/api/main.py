@@ -662,6 +662,9 @@ app.include_router(affiliate_admin_router)
 app.include_router(admin_curate_router)
 app.include_router(youtube_extract_router)
 
+from src.api.tiktok_extract import router as tiktok_extract_router
+app.include_router(tiktok_extract_router)
+
 from src.tasks.recipe_harvester import get_harvest_router
 app.include_router(get_harvest_router())
 
