@@ -646,10 +646,12 @@ from src.api.affiliate_webhooks import router as affiliate_webhooks_router
 from src.api.admin import router as admin_router
 from src.api.affiliate_admin import router as affiliate_admin_router
 from src.api.admin_curate import router as admin_curate_router
+from src.api.youtube_extract import router as youtube_extract_router
 app.include_router(affiliate_webhooks_router)
 app.include_router(admin_router)
 app.include_router(affiliate_admin_router)
 app.include_router(admin_curate_router)
+app.include_router(youtube_extract_router)
 
 from src.api.collections import router as collections_router
 app.include_router(collections_router)
