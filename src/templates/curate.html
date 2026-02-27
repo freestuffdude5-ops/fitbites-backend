@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitBites Recipe Curator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 24px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .nutrition-grid input {
+            width: 100%;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success {
+            background: #27ae60;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .tag-input {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .tag:hover {
+            background: #764ba2;
+        }
+
+        .tag.selected {
+            background: #27ae60;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .nutrition-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Recipe Curator</h1>
+        <p class="subtitle">Add high-quality recipes to FitBites in under 60 seconds</p>
+
+        <div id="successMessage" class="success"></div>
+        <div id="errorMessage" class="error"></div>
+
+        <form id="curateForm">
+            <div class="form-group">
+                <label for="sourceUrl">Video URL <span class="required">*</span></label>
+                <input 
+                    type="url" 
+                    id="sourceUrl" 
+                    name="sourceUrl" 
+                    placeholder="https://instagram.com/p/..." 
+                    required
+                >
+                <div class="helper-text">Instagram, TikTok, or YouTube link</div>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Recipe Title <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    name="title" 
+                    placeholder="High Protein Grilled Cheese Burrito" 
+                    required
+                    maxlength="300"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="servings">Servings <span class="required">*</span></label>
+                <input 
+                    type="number" 
+                    id="servings" 
+                    name="servings" 
+                    value="1" 
+                    min="1" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="ingredients">Ingredients <span class="required">*</span></label>
+                <textarea 
+                    id="ingredients" 
+                    name="ingredients" 
+                    placeholder="1 scoop protein powder&#10;2 eggs&#10;1 tortilla&#10;1/4 cup cheese" 
+                    required
+                ></textarea>
+                <div class="helper-text">One ingredient per line</div>
+            </div>
+
+            <div class="form-group">
+                <label>Nutrition Facts <span class="required">*</span></label>
+                <div class="nutrition-grid">
+                    <div>
+                        <input 
+                            type="number" 
+                            id="calories" 
+                            name="calories" 
+                            placeholder="Calories" 
+                            required
+                            min="0"
+                        >
+                    </div>
+                    <div>
+                        <input 
+                            type="number" 
+                            id="protein" 
+                            name="protein" 
+                            placeholder="Protein (g)" 
+                            required
+                            min="0"
+                            step="0.1"
+                        >
+                    </div>
+                    <div>
+                        <input 
+                            type="number" 
+                            id="carbs" 
+                            name="carbs" 
+                            placeholder="Carbs (g)" 
+                            min="0"
+                            step="0.1"
+                        >
+                    </div>
+                    <div>
+                        <input 
+                            type="number" 
+                            id="fat" 
+                            name="fat" 
+                            placeholder="Fat (g)" 
+                            min="0"
+                            step="0.1"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="steps">Cooking Steps (Optional)</label>
+                <textarea 
+                    id="steps" 
+                    name="steps" 
+                    placeholder="Mix protein powder with eggs&#10;Heat tortilla&#10;Add cheese and cook until melted"
+                ></textarea>
+                <div class="helper-text">One step per line (optional)</div>
+            </div>
+
+            <div class="form-group">
+                <label>Quick Tags</label>
+                <div class="tag-input">
+                    <div class="tag" data-tag="high-protein">High Protein</div>
+                    <div class="tag" data-tag="breakfast">Breakfast</div>
+                    <div class="tag" data-tag="quick">Quick</div>
+                    <div class="tag" data-tag="lunch">Lunch</div>
+                    <div class="tag" data-tag="dinner">Dinner</div>
+                    <div class="tag" data-tag="snack">Snack</div>
+                    <div class="tag" data-tag="low-carb">Low Carb</div>
+                    <div class="tag" data-tag="keto">Keto</div>
+                </div>
+                <input type="hidden" id="tags" name="tags">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description (Optional)</label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    placeholder="A delicious high-protein breakfast that's ready in minutes..."
+                    maxlength="1000"
+                ></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                ✨ Add Recipe
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Tag selection
+        const selectedTags = new Set();
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                const tagValue = tag.dataset.tag;
+                if (selectedTags.has(tagValue)) {
+                    selectedTags.delete(tagValue);
+                    tag.classList.remove('selected');
+                } else {
+                    selectedTags.add(tagValue);
+                    tag.classList.add('selected');
+                }
+                document.getElementById('tags').value = Array.from(selectedTags).join(',');
+            });
+        });
+
+        // Form submission
+        document.getElementById('curateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+
+            // Hide previous messages
+            successMsg.classList.remove('show');
+            errorMsg.classList.remove('show');
+
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Saving...';
+
+            // Get form data
+            const formData = new FormData(e.target);
+            const ingredients = formData.get('ingredients').split('\n').filter(i => i.trim());
+            const steps = formData.get('steps') ? formData.get('steps').split('\n').filter(s => s.trim()) : null;
+            const tags = selectedTags.size > 0 ? Array.from(selectedTags) : null;
+
+            const payload = {
+                title: formData.get('title'),
+                source_url: formData.get('sourceUrl'),
+                ingredients: ingredients,
+                nutrition: {
+                    calories: parseInt(formData.get('calories')),
+                    protein: parseFloat(formData.get('protein')),
+                    carbs: parseFloat(formData.get('carbs') || 0),
+                    fat: parseFloat(formData.get('fat') || 0)
+                },
+                servings: parseInt(formData.get('servings')),
+                steps: steps,
+                tags: tags,
+                description: formData.get('description') || null
+            };
+
+            // Get admin key from prompt
+            let adminKey = localStorage.getItem('fitbites_admin_key');
+            if (!adminKey) {
+                adminKey = prompt('Enter admin API key:');
+                if (adminKey) {
+                    localStorage.setItem('fitbites_admin_key', adminKey);
+                }
+            }
+
+            if (!adminKey) {
+                errorMsg.textContent = 'Admin key required';
+                errorMsg.classList.add('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✨ Add Recipe';
+                return;
+            }
+
+            try {
+                const response = await fetch('/v1/admin/recipes/curate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Key': adminKey
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    successMsg.textContent = `✅ ${result.message} Recipe ID: ${result.recipe_id}`;
+                    successMsg.classList.add('show');
+                    
+                    // Reset form
+                    e.target.reset();
+                    selectedTags.clear();
+                    document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+                    
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    errorMsg.textContent = `❌ Error: ${result.detail || 'Failed to save recipe'}`;
+                    errorMsg.classList.add('show');
+
+                    // If 403, clear admin key
+                    if (response.status === 403) {
+                        localStorage.removeItem('fitbites_admin_key');
+                    }
+                }
+            } catch (error) {
+                errorMsg.textContent = `❌ Network error: ${error.message}`;
+                errorMsg.classList.add('show');
+            }
+
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✨ Add Recipe';
+        });
+
+        // Auto-select "high-protein" tag by default
+        document.querySelector('[data-tag="high-protein"]').click();
+    </script>
+</body>
+</html>
