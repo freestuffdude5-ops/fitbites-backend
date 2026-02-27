@@ -350,15 +350,5 @@ async def get_daily_log(
     )
 
 
-@router.post("/tracking/log-meal")
-async def log_meal_internal(
-    req: LogToTrackerRequest,
-    user: UserRow = Depends(require_user),
-    session: AsyncSession = Depends(get_session),
-):
-    """Internal endpoint for ECHO's tracking system to log meals.
-    
-    Same as log-to-tracker but designed for service-to-service calls.
-    Accepts the same payload format for consistency.
-    """
-    return await log_recipe_to_tracker(req, user, session)
+# NOTE: /tracking/log-meal is now handled by src/api/tracking.py (ECHO's calorie tracking API)
+# The old stub here has been removed to avoid route conflicts.

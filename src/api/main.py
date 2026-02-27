@@ -474,6 +474,9 @@ async def search_recipes(
 
 
 # --- Recipe Integration & Daily Tracking (BYTE) --- must be before {recipe_id} catch-all
+from src.api.tracking import router as tracking_router
+app.include_router(tracking_router)
+
 from src.api.recipe_tracking import router as recipe_tracking_router
 app.include_router(recipe_tracking_router)
 
@@ -916,9 +919,6 @@ async def validation_error_handler(request: FastAPIRequest, exc: RequestValidati
         "details": errors,
     })
 
-
-from src.api.tracking import router as tracking_router
-app.include_router(tracking_router)
 
 @app.exception_handler(HTTPException)
 async def http_error_handler(request: FastAPIRequest, exc: HTTPException):
