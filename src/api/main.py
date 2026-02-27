@@ -662,6 +662,9 @@ app.include_router(affiliate_admin_router)
 app.include_router(admin_curate_router)
 app.include_router(youtube_extract_router)
 
+from src.tasks.recipe_harvester import get_harvest_router
+app.include_router(get_harvest_router())
+
 from src.api.collections import router as collections_router
 app.include_router(collections_router)
 
@@ -686,6 +689,10 @@ app.include_router(food_router)
 
 from src.api.barcode import router as barcode_router
 app.include_router(barcode_router)
+
+# --- Recipe Orchestrator / Scheduler (BYTE) ---
+from src.api.recipe_scheduler import router as recipe_scheduler_router
+app.include_router(recipe_scheduler_router)
 
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 
