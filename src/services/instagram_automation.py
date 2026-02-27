@@ -97,7 +97,7 @@ class RecipeDeduplicator:
 
     def load_existing_urls(self, urls: list[str]):
         """Load already-saved URLs from database."""
-        self._seen_urls.update(urls)
+        self._seen_urls.update(u.rstrip("/").lower() for u in urls)
 
     def is_duplicate(self, recipe: ExtractedRecipe) -> bool:
         """Check if recipe is a duplicate."""
