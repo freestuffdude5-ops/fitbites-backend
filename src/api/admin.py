@@ -142,6 +142,45 @@ async def seed_extra_recipes(
     return {"status": "success", "added": added, "total": after, "skipped_duplicates": len(mod.EXTRA_RECIPES) - added}
 
 
+@router.post("/delete-recipes-by-ids")
+async def delete_recipes_by_ids(
+    recipe_ids: list[str] = Body(..., embed=True),
+    session: AsyncSession = Depends(get_session),
+    _auth: None = Depends(verify_admin_key),
+):
+    """
+    Delete specific recipes by their UUIDs.
+    
+    Requires: X-Admin-Key header with valid admin API key.
+    Body: {"recipe_ids": ["uuid1", "uuid2", ...]}
+    """
+    from src.db.tables import RecipeRow
+    from sqlalchemy import select, delete, func
+    
+    if not recipe_ids:
+        raise HTTPException(400, "No recipe IDs provided")
+    
+    # Get titles before deletion
+    result = await session.execute(
+        select(RecipeRow.id, RecipeRow.title).where(RecipeRow.id.in_(recipe_ids))
+    )
+    recipes_to_delete = result.fetchall()
+    
+    # Delete recipes
+    result = await session.execute(
+        delete(RecipeRow).where(RecipeRow.id.in_(recipe_ids))
+    )
+    deleted_count = result.rowcount
+    await session.commit()
+    
+    return {
+        "status": "success",
+        "deleted": deleted_count,
+        "expected": len(recipe_ids),
+        "recipes": [{"id": str(r.id), "title": r.title} for r in recipes_to_delete]
+    }
+
+
 @router.delete("/clear-recipes")
 async def clear_recipes(
     session: AsyncSession = Depends(get_session),
