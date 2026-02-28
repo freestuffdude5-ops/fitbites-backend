@@ -1,6 +1,6 @@
 FROM python:3.12-slim AS base
 
-# Cache bust: 2026-02-27 13:30 - YouTube v2.1 ffmpeg support
+# Cache bust: 2026-02-27 22:53 - Force rebuild with yt-dlp
 # Security: don't run as root
 RUN groupadd -r fitbites && useradd -r -g fitbites -d /app fitbites
 
