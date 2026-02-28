@@ -26,8 +26,8 @@ class DailyLogRow(Base):
     total_fat_g = Column(Float, default=0.0)
     total_fiber_g = Column(Float, default=0.0)
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         UniqueConstraint("user_id", "log_date", name="uq_user_daily_log"),
@@ -55,7 +55,7 @@ class MealLogEntryRow(Base):
     fat_g = Column(Float, default=0.0)
 
     recipe_title = Column(String(500), nullable=True)  # denormalized for fast display
-    logged_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    logged_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         Index("ix_meal_log_user", "user_id"),

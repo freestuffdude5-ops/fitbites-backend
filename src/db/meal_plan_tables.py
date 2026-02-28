@@ -28,8 +28,8 @@ class MealPlanRow(Base):
     daily_carbs_g = Column(Float, nullable=True)
     daily_fat_g = Column(Float, nullable=True)
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         Index("ix_meal_plans_user_dates", "user_id", "start_date"),
