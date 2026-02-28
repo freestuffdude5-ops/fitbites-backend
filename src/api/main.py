@@ -92,6 +92,19 @@ def _verify_admin(x_admin_key: str = Header(None)) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Create tables on startup, start scheduler, optionally run initial scrape."""
+    # Write YouTube cookies from env var to file (Railway can't include gitignored files)
+    import os as _os
+    from pathlib import Path as _Path
+    _cookies_b64 = _os.getenv("YOUTUBE_COOKIES_B64")
+    _cookies_path = _os.getenv("YOUTUBE_COOKIES_PATH", "/app/cookies.txt")
+    if _cookies_b64 and not _Path(_cookies_path).exists():
+        try:
+            import base64 as _b64
+            _Path(_cookies_path).write_bytes(_b64.b64decode(_cookies_b64))
+            logger.info(f"Wrote YouTube cookies to {_cookies_path}")
+        except Exception as e:
+            logger.warning(f"Failed to write cookies file: {e}")
+
     # Validate configuration before anything else
     from src.startup_checks import validate_settings
     validate_settings()

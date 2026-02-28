@@ -30,3 +30,4 @@ backups/
 # Static uploads (user content)
 static/avatars/*
 !static/avatars/.gitkeep
+cookies.txt
