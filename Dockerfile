@@ -4,9 +4,10 @@ FROM python:3.12-slim AS base
 # Security: don't run as root
 RUN groupadd -r fitbites && useradd -r -g fitbites -d /app fitbites
 
-# Install ffmpeg and yt-dlp for YouTube recipe extraction
+# Install ffmpeg and Node.js (needed by yt-dlp for YouTube signature solving)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
