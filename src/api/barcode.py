@@ -1,4 +1,14 @@
-"""Barcode Scanner API — /api/v1/barcode/* endpoints."""
+"""
+Barcode Scanner API — /api/v1/barcode/* endpoints.
+
+CORRECT UX FLOW:
+1. User scans barcode → POST /scan → Returns product info (NO LOGGING)
+2. App shows confirmation: "Add Coca-Cola (42 cal) to your log?"
+3a. User taps 'Add' → POST /confirm-and-log → Logs to tracker
+3b. User taps 'Cancel' → Nothing logged
+
+This pattern prevents accidental logging and matches industry UX (MyFitnessPal, Lose It!, etc.).
+"""
 from __future__ import annotations
 
 import logging
@@ -69,9 +79,14 @@ async def search_barcode(
     return results
 
 
-@router.post("/log-scanned", response_model=BarcodeLogResponse)
-async def log_scanned_barcode(req: BarcodeLogRequest):
-    """Scan a barcode and auto-log the nutrition to the daily tracker."""
+@router.post("/confirm-and-log", response_model=BarcodeLogResponse)
+async def confirm_and_log_barcode(req: BarcodeLogRequest):
+    """
+    Confirm and log a scanned product to the daily tracker.
+    
+    This endpoint should ONLY be called after the user explicitly confirms they want to log the item.
+    Use POST /scan to get product info without logging.
+    """
     barcode = req.barcode.strip()
     if not barcode.isdigit() or len(barcode) < 8:
         raise HTTPException(status_code=400, detail="Invalid barcode format.")
