@@ -251,6 +251,27 @@ async def refresh_token(
     return {"user": {"id": user.id, "email": user.email, "display_name": user.display_name}, **tokens}
 
 
+@app.get("/api/v1/auth/me")
+async def get_current_user_info(user: UserRow = Depends(require_user)):
+    """Get current authenticated user's profile."""
+    return {
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "display_name": user.display_name,
+            "avatar_url": user.avatar_url,
+            "preferences": user.preferences or {},
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+        }
+    }
+
+
+@app.post("/api/v1/auth/logout")
+async def logout():
+    """Logout endpoint (client should clear tokens)."""
+    return {"status": "logged_out"}
+
+
 @app.get("/api/v1/me/saved")
 async def list_saved(
     user: UserRow = Depends(require_user),
