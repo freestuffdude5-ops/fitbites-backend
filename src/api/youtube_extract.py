@@ -19,6 +19,7 @@ Changes in v2:
 """
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -31,6 +32,15 @@ from pydantic import BaseModel, HttpUrl
 
 
 router = APIRouter(prefix="/api/v1/youtube", tags=["youtube-extraction"])
+
+# Cookie support for YouTube bot detection bypass
+# Set YOUTUBE_COOKIES_PATH environment variable to path of exported cookies file
+def get_youtube_cookies_args() -> List[str]:
+    """Get yt-dlp cookie arguments if cookies file exists."""
+    cookies_path = os.getenv("YOUTUBE_COOKIES_PATH")
+    if cookies_path and Path(cookies_path).exists():
+        return ["--cookies", cookies_path]
+    return []
 
 
 class YouTubeExtractRequest(BaseModel):
@@ -408,6 +418,7 @@ def extract_recipe_from_youtube(video_url: str) -> ExtractedRecipe:
             # Get video metadata
             metadata_cmd = [
                 ytdlp_path,
+            ] + get_youtube_cookies_args() + [
                 "--print", "%(title)s|||%(thumbnail)s|||%(uploader)s",
                 video_url
             ]
@@ -432,6 +443,7 @@ def extract_recipe_from_youtube(video_url: str) -> ExtractedRecipe:
             # Download auto-captions
             caption_cmd = [
                 ytdlp_path,
+            ] + get_youtube_cookies_args() + [
                 "--write-auto-subs",
                 "--sub-lang", "en",
                 "--skip-download",
@@ -443,7 +455,7 @@ def extract_recipe_from_youtube(video_url: str) -> ExtractedRecipe:
                 caption_cmd,
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=90  # Increased timeout for cookies auth
             )
             
             if caption_result.returncode != 0:
@@ -570,11 +582,17 @@ async def youtube_extractor_health():
     except:
         ffmpeg_available = False
     
+    # Check cookies
+    cookies_path = os.getenv("YOUTUBE_COOKIES_PATH")
+    cookies_configured = cookies_path and Path(cookies_path).exists()
+    
     return {
         "status": "healthy" if (ytdlp_installed and ffmpeg_available) else "degraded",
         "ytdlp_installed": ytdlp_installed,
         "ffmpeg_available": ffmpeg_available,
-        "version": "v2.1",
+        "cookies_configured": cookies_configured,
+        "cookies_path": cookies_path,
+        "version": "v2.2",
         "features": [
             "thumbnail_extraction",
             "channel_name_extraction",
@@ -584,6 +602,7 @@ async def youtube_extractor_health():
             "segment_detection",
             "improved_carbs_fat_regex",
             "recipe_title_parsing",
-            "multi_recipe_detection"
+            "multi_recipe_detection",
+            "cookie_auth_bypass"
         ]
     }
