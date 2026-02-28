@@ -4,11 +4,16 @@ FROM python:3.12-slim AS base
 # Security: don't run as root
 RUN groupadd -r fitbites && useradd -r -g fitbites -d /app fitbites
 
-# Install ffmpeg and Node.js (needed by yt-dlp for YouTube signature solving)
+# Install ffmpeg and curl
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
-    nodejs \
+    curl \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Deno (needed by yt-dlp for YouTube EJS signature solving)
+RUN curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh
+ENV PATH="/usr/local/bin:${PATH}"
 
 WORKDIR /app
 
@@ -19,6 +24,9 @@ COPY . .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir ".[dev]" && \
     pip install --no-cache-dir yt-dlp
+
+# Download yt-dlp EJS challenge solver scripts
+RUN yt-dlp --update-components 2>/dev/null || true
 
 # Create data directory for SQLite
 RUN mkdir -p /app/data && chown -R fitbites:fitbites /app

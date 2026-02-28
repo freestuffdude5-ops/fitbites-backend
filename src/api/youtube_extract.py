@@ -419,6 +419,8 @@ def extract_recipe_from_youtube(video_url: str) -> ExtractedRecipe:
             metadata_cmd = [
                 ytdlp_path,
             ] + get_youtube_cookies_args() + [
+                "--skip-download",
+                "--no-warnings",
                 "--print", "%(title)s|||%(thumbnail)s|||%(uploader)s",
                 video_url
             ]
