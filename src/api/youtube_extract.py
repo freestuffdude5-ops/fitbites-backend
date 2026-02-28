@@ -421,14 +421,15 @@ def extract_recipe_from_youtube(video_url: str) -> ExtractedRecipe:
             ] + get_youtube_cookies_args() + [
                 "--skip-download",
                 "--no-warnings",
-                "--print", "%(title)s|||%(thumbnail)s|||%(uploader)s",
+                "--ignore-errors",
+                "--dump-single-json",
                 video_url
             ]
             metadata_result = subprocess.run(
                 metadata_cmd,
                 capture_output=True,
                 text=True,
-                timeout=30
+                timeout=60
             )
             
             if metadata_result.returncode != 0:
@@ -437,10 +438,11 @@ def extract_recipe_from_youtube(video_url: str) -> ExtractedRecipe:
                     detail=f"Failed to fetch video: {metadata_result.stderr}"
                 )
             
-            metadata_parts = metadata_result.stdout.strip().split("|||")
-            video_title = metadata_parts[0] if len(metadata_parts) > 0 else "Unknown"
-            thumbnail_url = metadata_parts[1] if len(metadata_parts) > 1 else None
-            channel_name = metadata_parts[2] if len(metadata_parts) > 2 else None
+            import json as _json
+            video_info = _json.loads(metadata_result.stdout)
+            video_title = video_info.get("title", "Unknown")
+            thumbnail_url = video_info.get("thumbnail")
+            channel_name = video_info.get("uploader")
             
             # Download auto-captions
             caption_cmd = [
