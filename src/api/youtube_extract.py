@@ -36,11 +36,12 @@ router = APIRouter(prefix="/api/v1/youtube", tags=["youtube-extraction"])
 # Cookie support for YouTube bot detection bypass
 # Set YOUTUBE_COOKIES_PATH environment variable to path of exported cookies file
 def get_youtube_cookies_args() -> List[str]:
-    """Get yt-dlp cookie arguments if cookies file exists."""
+    """Get yt-dlp cookie and EJS arguments if cookies file exists."""
+    args = ["--remote-components", "ejs:github"]
     cookies_path = os.getenv("YOUTUBE_COOKIES_PATH")
     if cookies_path and Path(cookies_path).exists():
-        return ["--cookies", cookies_path]
-    return []
+        args += ["--cookies", cookies_path]
+    return args
 
 
 class YouTubeExtractRequest(BaseModel):
@@ -419,10 +420,7 @@ def extract_recipe_from_youtube(video_url: str) -> ExtractedRecipe:
             metadata_cmd = [
                 ytdlp_path,
             ] + get_youtube_cookies_args() + [
-                "--skip-download",
-                "--no-warnings",
-                "--ignore-errors",
-                "--dump-single-json",
+                "--print", "%(title)s|||%(thumbnail)s|||%(uploader)s",
                 video_url
             ]
             metadata_result = subprocess.run(
@@ -438,11 +436,10 @@ def extract_recipe_from_youtube(video_url: str) -> ExtractedRecipe:
                     detail=f"Failed to fetch video: {metadata_result.stderr}"
                 )
             
-            import json as _json
-            video_info = _json.loads(metadata_result.stdout)
-            video_title = video_info.get("title", "Unknown")
-            thumbnail_url = video_info.get("thumbnail")
-            channel_name = video_info.get("uploader")
+            metadata_parts = metadata_result.stdout.strip().split("|||")
+            video_title = metadata_parts[0] if len(metadata_parts) > 0 else "Unknown"
+            thumbnail_url = metadata_parts[1] if len(metadata_parts) > 1 else None
+            channel_name = metadata_parts[2] if len(metadata_parts) > 2 else None
             
             # Download auto-captions
             caption_cmd = [
