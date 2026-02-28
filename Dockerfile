@@ -1,6 +1,6 @@
 FROM python:3.12-slim AS base
 
-# Cache bust: 2026-02-27 22:53 - Force rebuild with yt-dlp
+# Cache bust: 2026-02-28 04:55 - Force rebuild (yt-dlp shutil.which fix)
 # Security: don't run as root
 RUN groupadd -r fitbites && useradd -r -g fitbites -d /app fitbites
 
