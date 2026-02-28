@@ -230,7 +230,7 @@ async def import_bulk_recipes(
                 skipped += 1
                 continue
             
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             platform = rd.get("source_platform", rd.get("platform", "reddit"))
             author = rd.get("source_author", rd.get("creator_username", "unknown"))
             
