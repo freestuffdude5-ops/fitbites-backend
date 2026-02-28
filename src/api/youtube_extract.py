@@ -20,6 +20,7 @@ Changes in v2:
 
 import json
 import re
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -394,9 +395,9 @@ def extract_recipe_from_youtube(video_url: str) -> ExtractedRecipe:
     Extract recipe data from YouTube video using yt-dlp and auto-captions.
     v2.1: Full transcript parsing with ingredients and instructions.
     """
-    ytdlp_path = "/home/user/.local/bin/yt-dlp"
+    ytdlp_path = shutil.which("yt-dlp")
     
-    if not Path(ytdlp_path).exists():
+    if not ytdlp_path:
         raise HTTPException(
             status_code=500,
             detail="yt-dlp not installed. Run: pip install yt-dlp"
@@ -555,8 +556,8 @@ async def extract_youtube_recipe(request: YouTubeExtractRequest):
 @router.get("/health")
 async def youtube_extractor_health():
     """Check if YouTube extraction service is available."""
-    ytdlp_path = "/home/user/.local/bin/yt-dlp"
-    ytdlp_installed = Path(ytdlp_path).exists()
+    ytdlp_path = shutil.which("yt-dlp")
+    ytdlp_installed = ytdlp_path is not None
     
     # Check ffmpeg
     try:
