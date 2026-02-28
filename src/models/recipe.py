@@ -27,7 +27,7 @@ class NutritionInfo(BaseModel):
 
 class Ingredient(BaseModel):
     name: str
-    quantity: str  # e.g. "2 cups", "200g"
+    quantity: Optional[str] = None  # e.g. "2 cups", "200g" - optional for compatibility
     affiliate_url: Optional[str] = None
     amazon_asin: Optional[str] = None
     category: Optional[str] = None  # "protein", "dairy", "produce", etc.

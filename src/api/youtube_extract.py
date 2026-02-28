@@ -3,6 +3,17 @@ YouTube Recipe Extraction API v2.1 - Full Transcript Edition
 Extracts recipe data from YouTube videos using auto-captions with ffmpeg support
 Production-ready wrapper around yt-dlp
 
+⚠️ VALIDATION INTEGRATION PENDING ⚠️
+----------------------------------------
+After extraction, validate recipes using:
+  from src.services.recipe_validation import validate_recipe
+
+Add validation before returning the response (around line 553).
+If validation fails, return YouTubeExtractResponse(success=False, error=result.reject_reason)
+Rejected recipes are automatically logged to /home/user/clawd/company/fitbites/rejected_recipes.jsonl
+
+See: AUTOMATED-RECIPE-VALIDATION.md (Hayden's P0 requirement)
+
 Changes in v2.1:
 - Full VTT transcript extraction with segment parsing
 - Structured ingredients list (not just raw text)
