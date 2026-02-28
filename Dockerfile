@@ -27,11 +27,15 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir ".[dev]" && \
     pip install --no-cache-dir yt-dlp
 
-# Download yt-dlp EJS challenge solver scripts
-RUN yt-dlp --update-components 2>/dev/null || true
+# Verify Deno is available and pre-cache yt-dlp EJS scripts
+RUN deno --version && \
+    yt-dlp --remote-components ejs:github --skip-download --print "%(title)s" "https://www.youtube.com/watch?v=jNQXAC9IVRw" 2>&1 || true
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data && chown -R fitbites:fitbites /app
+# Create data directory and ensure caches are writable
+RUN mkdir -p /app/data /app/.cache /app/.deno && chown -R fitbites:fitbites /app
+
+ENV DENO_DIR=/app/.deno
+ENV XDG_CACHE_HOME=/app/.cache
 
 USER fitbites
 
