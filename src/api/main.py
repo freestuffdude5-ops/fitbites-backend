@@ -116,6 +116,7 @@ async def lifespan(app: FastAPI):
     import src.db.review_tables  # noqa: F401
     import src.db.subscription_tables  # noqa: F401
     import src.db.social_tables  # noqa: F401
+    import src.db.kudos_tables  # noqa: F401
     import src.db.comment_tables  # noqa: F401
     import src.db.recently_viewed_tables  # noqa: F401
     import src.db.tracking_tables  # noqa: F401
@@ -672,6 +673,10 @@ app.include_router(reviews_router)
 from src.api.social import router as social_router
 app.include_router(social_router)
 
+# --- Kudos: give recognition to cooks ---
+from src.api.kudos import router as kudos_router
+app.include_router(kudos_router)
+
 # --- Advanced search & discovery (must be before {recipe_id} catch-all) ---
 from src.api.search import router as search_router
 app.include_router(search_router)
@@ -732,7 +737,9 @@ app.include_router(barcode_router)
 
 # --- Recipe Orchestrator / Scheduler (BYTE) ---
 from src.api.recipe_scheduler import router as recipe_scheduler_router
+from src.api.shop_recipe import router as shop_recipe_router
 app.include_router(recipe_scheduler_router)
+app.include_router(shop_recipe_router)
 
 # --- Streak Tracking (PROTO prototype) ---
 from src.api.streaks import router as streaks_router
