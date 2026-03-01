@@ -734,6 +734,10 @@ app.include_router(barcode_router)
 from src.api.recipe_scheduler import router as recipe_scheduler_router
 app.include_router(recipe_scheduler_router)
 
+# --- Streak Tracking (PROTO prototype) ---
+from src.api.streaks import router as streaks_router
+app.include_router(streaks_router)
+
 # ── Affiliate Redirect & Tracking ────────────────────────────────────────────
 
 @app.post("/api/v1/affiliate-links/tracked")

@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
 from sqlalchemy import (
-    Column, String, Integer, Float, Text, DateTime, JSON, Enum as SAEnum, Index
+    Column, String, Integer, Float, Text, DateTime, Date, JSON, Enum as SAEnum, Index
 )
 from sqlalchemy.orm import DeclarativeBase
 
@@ -68,3 +68,23 @@ class RecipeRow(Base):
         Index("ix_recipes_calories", "calories"),
         Index("ix_recipes_protein", "protein_g"),
     )
+
+
+class UserStreakRow(Base):
+    """Tracks daily cooking activity streaks for users."""
+    __tablename__ = "user_streaks"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String(100), unique=True, nullable=False, index=True)
+    
+    # Streak state
+    current_streak = Column(Integer, default=0, nullable=False)
+    longest_streak = Column(Integer, default=0, nullable=False)
+    
+    # Activity tracking
+    last_cooked_date = Column(Date, nullable=True)
+    total_cooks = Column(Integer, default=0, nullable=False)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
